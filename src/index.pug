@@ -1,6 +1,8 @@
-doctype html
-html(lang='en')
-    head
-        title test
-    body
-        h1 Pug here
+extends layout
+
+block variables
+  - var title = 'ETERNALFILM'
+  - var descr = 'Экспериментальный бесконечный фильм, интерактивный видео-арт'
+
+block content
+    h2 шаблон работает
