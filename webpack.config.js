@@ -11,8 +11,9 @@ const isProd = !isDev //в режиме продакшена
 
 //имена входных файлов
 const entryPoint = 'script.js'
-const baseTemplate = 'index.pug'
+const baseTemplate = 'main.pug'
 const copyFile = 'favicon.ico'
+const outputHTML = 'index.html'
 
 //имена выходных файлов в зависимости от режима сборки с хешем и без для различных расширений
 const filename = ext => isDev ? `[name].${ext}` : `[name].[hash].${ext}`
@@ -81,7 +82,7 @@ module.exports = {
     plugins: [
         new HTMLWebpackPlugin({
             template: `./${baseTemplate}`, //шаблон
-            filename: 'index.html',
+            filename: outputHTML,
             minify: {
                 collapseWhitespace: isProd //оптимизация HTML только в продакшен
             }
