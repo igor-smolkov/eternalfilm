@@ -11,7 +11,7 @@ const isProd = !isDev //в режиме продакшена
 
 //имена входных файлов
 const entryPoint = 'script.js'
-const baseTemplate = 'index.html'
+const baseTemplate = 'index.pug'
 const copyFile = 'favicon.ico'
 
 //имена выходных файлов в зависимости от режима сборки с хешем и без для различных расширений
@@ -81,6 +81,7 @@ module.exports = {
     plugins: [
         new HTMLWebpackPlugin({
             template: `./${baseTemplate}`, //шаблон
+            filename: 'index.html',
             minify: {
                 collapseWhitespace: isProd //оптимизация HTML только в продакшен
             }
@@ -124,6 +125,10 @@ module.exports = {
                         ]
                     }
                 }
+            },
+            {
+                test: /\.pug$/, //все pug файлы
+                loader: 'pug-loader'
             }
         ]
     }
