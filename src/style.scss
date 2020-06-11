@@ -13,6 +13,12 @@ body {
     .screen {
         flex-grow: 1;
         background-color: rgb(22, 16, 11);
+        color: rgb(180, 159, 142);
+        display: flex;
+        justify-content: center;
+        p {
+            align-self: center;
+        }
     }
     form {
         display: flex;
