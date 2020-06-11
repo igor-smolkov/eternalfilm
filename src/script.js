@@ -10,6 +10,16 @@ screen.addEventListener('click', function(){
     show();
 });
 
+let addBtn = document.getElementById('add');
+addBtn.addEventListener('click', function(){
+    let linkField = document.getElementById('link');
+    let linkFull = linkField.value;
+    linkField.value = '';
+    linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
+    let link = linkFull.slice(linkFull.length-6,linkFull.length);  //сделать другой парс
+    base.push(link);
+});
+
 function show() {
     screen.firstChild.remove();
     screen.firstChild.display = 'block';
