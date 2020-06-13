@@ -8,12 +8,12 @@ const loadDiff = 500;
 
 $.ajax({
     url: 'getBase.php',
-    dataType: 'text',
+    dataType: 'json',
     cache: false,
     data: '',
     type: 'post',
     success: function(php_script_response){
-        base = JSON.parse(php_script_response).links;
+        base = php_script_response.links;
     }
 });
 
@@ -30,6 +30,19 @@ addBtn.addEventListener('click', function(){
     linkField.value = '';
     linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
     let link = linkFull.slice(linkFull.length-6,linkFull.length);  //сделать другой парс
+
+    //отправка
+    $.ajax({
+        url: 'setBase.php',
+        dataType: 'text',
+        cache: false,
+        data: ({str: link}),
+        type: 'post',
+        success: function(php_script_response){
+            console.log(php_script_response)
+        }
+    });
+
     base.push(link);
 });
 
