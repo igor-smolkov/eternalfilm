@@ -12,7 +12,7 @@ const isProd = !isDev //в режиме продакшена
 //имена входных файлов
 const entryPoint = 'script.js'
 const baseTemplate = 'main.pug'
-const copyFile = 'favicon.ico'
+const copyFiles = 'static'
 const outputHTML = 'index.html'
 
 //имена выходных файлов в зависимости от режима сборки с хешем и без для различных расширений
@@ -70,7 +70,8 @@ module.exports = {
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'src') //алиас на паку исходников
+            '@': path.resolve(__dirname, 'src'), //алиас на паку исходников
+            '@static': path.resolve(__dirname, 'src/static') //на статичные файлы
         }
     },
     optimization: optimization(), //вызов вынесенной функции оптимизации
@@ -90,7 +91,7 @@ module.exports = {
         new CleanWebpackPlugin(),
         new CopyWebpackPlugin({
             patterns: [
-                {from: path.resolve(__dirname, `src/${copyFile}`)} //откуда взять файл
+                {from: path.resolve(__dirname, `src/${copyFiles}/`)} //откуда взять файл
             ]
         }),
         new MiniCssExtractPlugin({

@@ -1,6 +1,7 @@
 import '@/style.scss'
+import baseJSON from '@static/base.json'
 
-const base = ['29u2m7', '2ehwcq', '2dk3ue', '2czx0i', '2cfnex', '2cmh8n', '2bhw6f', '18o657', '2ab93m'];
+const base = baseJSON.links;
 const timer = 10000;
 const loadDiff = 500;
 
