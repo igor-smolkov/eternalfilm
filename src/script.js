@@ -2,7 +2,7 @@ import * as $ from 'jquery'
 import '@/style.scss'
 import baseJSON from '@static/base.json'
 
-const base = baseJSON.links;
+let base = baseJSON.links;
 const timer = 10000;
 const loadDiff = 500;
 
@@ -13,7 +13,7 @@ $.ajax({
     data: '',
     type: 'post',
     success: function(php_script_response){
-        console.log(php_script_response);
+        base = JSON.parse(php_script_response).links;
     }
 });
 
