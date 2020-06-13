@@ -6,6 +6,17 @@ const base = baseJSON.links;
 const timer = 10000;
 const loadDiff = 500;
 
+$.ajax({
+    url: 'getBase.php',
+    dataType: 'text',
+    cache: false,
+    data: '',
+    type: 'post',
+    success: function(php_script_response){
+        console.log(php_script_response);
+    }
+});
+
 let screen = document.querySelector('.screen');
 screen.addEventListener('click', function(){
     loadCoub();
