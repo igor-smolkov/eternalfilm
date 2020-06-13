@@ -22,7 +22,7 @@ addBtn.addEventListener('click', function(){
 
 function show() {
     screen.firstChild.remove();
-    screen.firstChild.display = 'block';
+    screen.firstChild.classList.toggle('coub_hidden');
     setTimeout(loadCoub, timer-loadDiff);
     setTimeout(show, timer);
 };
@@ -30,13 +30,12 @@ function show() {
 function loadCoub() {
     let link = randLink();
     let coub = createCoub(link);
-    coub.style.display = 'none';
     screen.append(createCoub(link));
 };
 
 function createCoub(link) {
     let coub = document.createElement('iframe');
-    coub.className = 'coub';
+    coub.className = 'coub coub_hidden';
     coub.src = 'https://coub.com/embed/'+link+'?muted=false&autostart=true&originalSize=false&startWithHD=false';
     coub.allow = 'autoplay';
     return coub;

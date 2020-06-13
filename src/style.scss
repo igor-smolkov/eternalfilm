@@ -22,11 +22,15 @@ body {
             align-self: center;
         }
         .coub {
-            position: absolute;
+            position: relative;
+            visibility: visible;
             width: 100%;
             height: 100%;
-            top: -25px;
-            z-index: 1;
+            &_hidden {
+                position: absolute;
+                visibility: hidden;
+                top: -100%;
+            }
         }
     }
     form {
