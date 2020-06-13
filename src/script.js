@@ -1,3 +1,4 @@
+import * as $ from 'jquery'
 import '@/style.scss'
 import baseJSON from '@static/base.json'
 
