@@ -6,7 +6,7 @@ let base = baseJSON.links;
 const timer = 5000;
 const loadDiff = 500;
 
-//connect();
+connect();
 function connect() {
     $.ajax({
         url: 'getBase.php',
@@ -79,7 +79,7 @@ addBtn.addEventListener('click', function(){
     let linkFull = linkField.value;
     linkField.value = '';
     linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
-    let link = linkFull.slice(linkFull.length-6,linkFull.length);  //сделать другой парс
+    let link = linkFull.slice(str.indexOf('v=')+2,linkFull.length);  //сделать другой парс
 
     //отправка
     $.ajax({

@@ -16,6 +16,7 @@ body {
         color: rgb(180, 159, 142);
         display: flex;
         justify-content: center;
+        //overflow: hidden;
         p {
             align-self: center;
         }
@@ -23,6 +24,7 @@ body {
             display: none;
             width: 100%;
             height: 100%;
+            //transform: scale(1.15);
         }
     }
     form {
