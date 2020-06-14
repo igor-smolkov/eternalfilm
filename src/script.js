@@ -3,8 +3,7 @@ import '@/style.scss'
 import baseJSON from '@static/base.json'
 
 let base = baseJSON.links;
-const timer = 5000;
-const loadDiff = 500;
+const timer = 7000;
 
 connect();
 function connect() {
@@ -79,7 +78,7 @@ addBtn.addEventListener('click', function(){
     let linkFull = linkField.value;
     linkField.value = '';
     linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
-    let link = linkFull.slice(str.indexOf('v=')+2,linkFull.length);  //сделать другой парс
+    let link = linkFull.slice(linkFull.indexOf('v=')+2,linkFull.length);  //сделать другой парс
 
     //отправка
     $.ajax({
