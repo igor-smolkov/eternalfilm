@@ -3,9 +3,10 @@ import '@/style.scss'
 import baseJSON from '@static/base.json'
 
 let base = baseJSON.links;
-const timer = 7000;
+const timer = 10000;
+const transition = 4000;
 
-connect();
+//connect();
 function connect() {
     $.ajax({
         url: 'getBase.php',
@@ -29,47 +30,80 @@ function loadYTApi() {
 
 let screen = document.querySelector('.screen');
 screen.addEventListener('click', function(){
-    screen.firstChild.style.display = 'block';
     screen.lastChild.remove();
-    onYouTubeIframeAPIReady();
-    //show();
+    screen.childNodes[0].style.display = 'block';
+    onYouTubeIframeAPIReady('odd');
+    setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
 });
 
-var player;
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
-        videoId: randLink(),
-        playerVars: { 'autoplay': 1, 'controls': 0 },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
+let playerOdd, playerEven;
+function onYouTubeIframeAPIReady(player) {
+    if (player === 'odd') {
+        playerOdd = new YT.Player('player_odd', {
+            videoId: randLink(),
+            playerVars: { 'autoplay': 1, 'controls': 0 },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerOddStateChange
+            }
+        });
+    } else if (player === 'even') {
+        playerEven = new YT.Player('player_even', {
+            videoId: randLink(),
+            playerVars: { 'autoplay': 1, 'controls': 0 },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerEvenStateChange
+            }
+        });
+    }
 }
 
 function onPlayerReady(event) {
     event.target.playVideo();
 }
 
-var done = false;
-function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PLAYING && !done) {
-        const randStart = randN(0,player.getDuration()-(timer/1000));
-        player.seekTo(randStart);
-        setTimeout(stopVideo, timer);
-        done = true;
+var doneOdd = false;
+function onPlayerOddStateChange(event) {
+    if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
+        event.target.seekTo(randStart(event.target.getDuration()));
+        setTimeout(changeVideo, timer, event.target, 'odd');
+        doneOdd = true;
     }
 }
 
-function stopVideo() {
-    player.stopVideo();
-    playVideo();
+var doneEven = false;
+function onPlayerEvenStateChange(event) {
+    if (event.data == YT.PlayerState.PLAYING && !doneEven) {
+        event.target.seekTo(randStart(event.target.getDuration()));
+        setTimeout(changeVideo, timer, event.target, 'even');
+        doneEven = true;
+    }
 }
 
-function playVideo() {
-    player.cueVideoById(randLink(), 10);
-    player.playVideo();
-    done = false;
+function changeVideo(obj, playerPoint) {
+    obj.stopVideo();
+    changeFrame(playerPoint);
+    setTimeout(playVideo, timer-transition*2, obj, playerPoint);
+}
+
+function playVideo(obj, playerPoint) {
+    obj.loadVideoById(randLink());
+    if (playerPoint === 'odd') {
+        doneOdd = false;
+    } else if (playerPoint === 'even') {
+        doneEven = false;
+    }
+}
+
+function changeFrame(playerPoint) {
+    if (playerPoint === 'odd') {
+        screen.childNodes[0].style.display = 'none';
+        screen.childNodes[1].style.display = 'block';
+    } else if (playerPoint === 'even') {
+        screen.childNodes[1].style.display = 'none';
+        screen.childNodes[0].style.display = 'block';
+    }
 }
 
 let addBtn = document.getElementById('add');
@@ -78,7 +112,7 @@ addBtn.addEventListener('click', function(){
     let linkFull = linkField.value;
     linkField.value = '';
     linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
-    let link = linkFull.slice(linkFull.indexOf('v=')+2,linkFull.length);  //сделать другой парс
+    let link = linkFull.slice(linkFull.indexOf('v=')+2,linkFull.length);
 
     //отправка
     $.ajax({
@@ -94,6 +128,10 @@ addBtn.addEventListener('click', function(){
 
     base.push(link);
 });
+
+function randStart(duration) {
+    return randN(0,duration-(timer/1000));
+}
 
 function randLink() {
     return base[randN(0,base.length)];
