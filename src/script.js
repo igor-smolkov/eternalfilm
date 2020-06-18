@@ -3,8 +3,8 @@ import '@/style.scss'
 import baseJSON from '@static/base.json'
 
 let base = baseJSON.links;
-const timer = 10000;
-const transition = 4000;
+const timer = 15000;
+const transition = 5000;
 
 //connect();
 function connect() {
@@ -72,6 +72,9 @@ var doneOdd = false;
 function onPlayerOddStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
         event.target.seekTo(randStart(event.target.getDuration()));
+
+        jCut(event.target, transition, 'lin');
+
         setTimeout(changeVideo, timer, event.target, 'odd');
         doneOdd = true;
     }
@@ -81,6 +84,9 @@ var doneEven = false;
 function onPlayerEvenStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
         event.target.seekTo(randStart(event.target.getDuration()));
+
+        jCut(event.target, transition, 'exp');
+
         setTimeout(changeVideo, timer, event.target, 'even');
         doneEven = true;
     }
@@ -103,21 +109,38 @@ function changeVideo(player, playerPoint) {
 }
 
 function transitionStart(player) {
-    player.mute();
-    //setTimeout(transition50, transition/2, player);
-    setTimeout(transitionEnd, transition, player);
 }
 function transition50(player) {
-    player.setVolume(10);
-    player.unMute();
 }
 function transitionEnd(player) {
-    //player.setVolume(50);
-    player.unMute();
 }
 
-function test(){
-    console.log('test');
+const maxVol = 100;
+function jCut(player, duration, type = 'lin', shift = 0) {
+    const step = duration/maxVol;
+    player.setVolume(0);
+    if(type === 'lin'){
+        let i = 0;
+        setTimeout(up, shift);
+        function up() {
+            player.setVolume(Math.round(i));
+            if (i <= maxVol) {
+                i += step/100;
+                setTimeout(up, 24);
+            }
+        }
+    } else if(type === 'exp'){
+        let i = 0;
+        setTimeout(up, shift);
+        function up() {
+            player.setVolume(Math.round(Math.exp(i)));
+            if (Math.exp(i) <= maxVol) {
+                i += step/(100/0.05);
+                setTimeout(up, 24);
+            }
+        }
+    }
+    setTimeout(transitionEnd, duration, player)
 }
 
 function changeFrame(playerPoint) {
