@@ -43,7 +43,7 @@ function onYouTubeIframeAPIReady(player) {
             videoId: randLink(),
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerReady,
+                'onReady': onPlayerOddReady,
                 'onStateChange': onPlayerOddStateChange
             }
         });
@@ -52,15 +52,20 @@ function onYouTubeIframeAPIReady(player) {
             videoId: randLink(),
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerReady,
+                'onReady': onPlayerEvenReady,
                 'onStateChange': onPlayerEvenStateChange
             }
         });
     }
 }
 
-function onPlayerReady(event) {
+function onPlayerOddReady(event) {
     event.target.playVideo();
+}
+
+function onPlayerEvenReady(event) {
+    event.target.playVideo();
+    transitionStart(event.target);
 }
 
 var doneOdd = false;
@@ -81,19 +86,38 @@ function onPlayerEvenStateChange(event) {
     }
 }
 
-function changeVideo(obj, playerPoint) {
-    obj.stopVideo();
-    changeFrame(playerPoint);
-    setTimeout(playVideo, timer-transition*2, obj, playerPoint);
-}
+function changeVideo(player, playerPoint) {
+    player.stopVideo();
 
-function playVideo(obj, playerPoint) {
-    obj.loadVideoById(randLink());
+    changeFrame(playerPoint);
+
+    setTimeout(transitionStart, timer-transition*2, player);
+
     if (playerPoint === 'odd') {
         doneOdd = false;
     } else if (playerPoint === 'even') {
         doneEven = false;
     }
+
+    setTimeout(playVideo, timer-transition*2, player);
+}
+
+function transitionStart(player) {
+    player.mute();
+    //setTimeout(transition50, transition/2, player);
+    setTimeout(transitionEnd, transition, player);
+}
+function transition50(player) {
+    player.setVolume(10);
+    player.unMute();
+}
+function transitionEnd(player) {
+    //player.setVolume(50);
+    player.unMute();
+}
+
+function test(){
+    console.log('test');
 }
 
 function changeFrame(playerPoint) {
@@ -104,6 +128,10 @@ function changeFrame(playerPoint) {
         screen.childNodes[1].style.display = 'none';
         screen.childNodes[0].style.display = 'block';
     }
+}
+
+function playVideo(player) {
+    player.loadVideoById(randLink());
 }
 
 let addBtn = document.getElementById('add');
