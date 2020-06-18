@@ -73,7 +73,7 @@ function onPlayerOddStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
         event.target.seekTo(randStart(event.target.getDuration()));
 
-        jCut(event.target, transition, randV(['lin', 'exp']));
+        jCut(event.target, transition, randV(['lin', 'exp', 'cut']));
 
         setTimeout(changeVideo, timer, event.target, 'odd');
         doneOdd = true;
@@ -85,7 +85,7 @@ function onPlayerEvenStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
         event.target.seekTo(randStart(event.target.getDuration()));
 
-        jCut(event.target, transition, randV(['lin', 'exp']));
+        jCut(event.target, transition, randV(['lin', 'exp', 'cut']));
 
         setTimeout(changeVideo, timer, event.target, 'even');
         doneEven = true;
@@ -140,6 +140,17 @@ function jCut(player, duration, type = 'lin', shift = 0) {
                 i += step/(100/0.05);
                 setTimeout(up, 24);
             }
+        }
+    } else if(type === 'cut'){
+        console.log('exp');
+        let i = false;
+        setTimeout(up, shift);
+        function up() {
+            if(i) { 
+                player.setVolume(maxVol); 
+            }
+            i = true;
+            setTimeout(up, duration-shift);
         }
     }
     setTimeout(transitionEnd, duration, player)
