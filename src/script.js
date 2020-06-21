@@ -1,26 +1,13 @@
 import * as $ from 'jquery'
 import '@/style.scss'
-import baseJSON from './static_dev/base.json'
 
-//import test from '@module/test.js'
+import baseJSON from '@file/base.json'
+import baseServ from '@module/connect.js'
+const base = process.env.NODE_ENV === 'development' ?  baseJSON.links : baseServ;
 
-let base = baseJSON.links;
-const timer = 15000;
-const transition = 5000;
-
-//connect();
-function connect() {
-    $.ajax({
-        url: 'getBase.php',
-        dataType: 'json',
-        cache: false,
-        data: '',
-        type: 'post',
-        success: function(php_script_response){
-            base = php_script_response.links;
-        }
-    });
-}
+import config from '@file/film.config.json'
+const timer = config.timer;
+const transition = config.transition;
 
 loadYTApi();
 function loadYTApi() {

@@ -13,7 +13,7 @@ const isProd = !isDev //в режиме продакшена
 const entryPoint = 'script.js'
 const baseTemplate = 'main.pug'
 const copyFilesProd = 'static'
-const copyFilesDev = 'static_dev'
+const copyFilesDev = 'files'
 const outputHTML = 'index.html'
 
 //имена выходных файлов в зависимости от режима сборки с хешем и без для различных расширений
@@ -73,6 +73,7 @@ module.exports = {
         alias: {
             '@': path.resolve(__dirname, 'src'), //алиас на паку исходников
             '@static': path.resolve(__dirname, 'src/static'), //на статичные файлы
+            '@file': path.resolve(__dirname, 'src/files'), //на статичные файлы для разработки
             '@module': path.resolve(__dirname, 'src/modules') //на js файлы-модули
         }
     },
