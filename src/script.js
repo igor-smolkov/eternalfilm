@@ -11,6 +11,8 @@ import config from '@file/film.config.json'
 const timer = config.timer;
 const transition = config.transition;
 
+import * as rand from '@module/rand.js'
+
 loadYTApi();
 function loadYTApi() {
     var tag = document.createElement('script');
@@ -31,7 +33,7 @@ let playerOdd, playerEven;
 function onYouTubeIframeAPIReady(player) {
     if (player === 'odd') {
         playerOdd = new YT.Player('player_odd', {
-            videoId: randLink(),
+            videoId: rand.thing(base),
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
                 'onReady': onPlayerOddReady,
@@ -40,7 +42,7 @@ function onYouTubeIframeAPIReady(player) {
         });
     } else if (player === 'even') {
         playerEven = new YT.Player('player_even', {
-            videoId: randLink(),
+            videoId: rand.thing(base),
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
                 'onReady': onPlayerEvenReady,
@@ -62,9 +64,9 @@ function onPlayerEvenReady(event) {
 var doneOdd = false;
 function onPlayerOddStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
-        event.target.seekTo(randStart(event.target.getDuration()));
+        event.target.seekTo(rand.start(event.target.getDuration(), timer));
 
-        jCut(event.target, transition, randV(['lin', 'exp', 'cut']));
+        jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
         setTimeout(changeVideo, timer, event.target, 'odd');
         doneOdd = true;
@@ -74,9 +76,9 @@ function onPlayerOddStateChange(event) {
 var doneEven = false;
 function onPlayerEvenStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
-        event.target.seekTo(randStart(event.target.getDuration()));
+        event.target.seekTo(rand.start(event.target.getDuration(), timer));
 
-        jCut(event.target, transition, randV(['lin', 'exp', 'cut']));
+        jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
         setTimeout(changeVideo, timer, event.target, 'even');
         doneEven = true;
@@ -111,7 +113,6 @@ function jCut(player, duration, type = 'lin', shift = 0) {
     const step = duration/maxVol;
     player.setVolume(0);
     if(type === 'lin'){
-        console.log('lin');
         let i = 0;
         setTimeout(up, shift);
         function up() {
@@ -122,7 +123,6 @@ function jCut(player, duration, type = 'lin', shift = 0) {
             }
         }
     } else if(type === 'exp'){
-        console.log('exp');
         let i = 0;
         setTimeout(up, shift);
         function up() {
@@ -133,7 +133,6 @@ function jCut(player, duration, type = 'lin', shift = 0) {
             }
         }
     } else if(type === 'cut'){
-        console.log('exp');
         let i = false;
         setTimeout(up, shift);
         function up() {
@@ -158,7 +157,7 @@ function changeFrame(playerPoint) {
 }
 
 function playVideo(player) {
-    player.loadVideoById(randLink());
+    player.loadVideoById(rand.thing(base));
 }
 
 let addBtn = document.getElementById('add');
@@ -175,21 +174,3 @@ addBtn.addEventListener('click', function(){
 
     base.push(link);
 });
-
-function randV(arr) {
-    return arr[randN(0,arr.length)];
-}
-
-function randStart(duration) {
-    return randN(0,duration-(timer/1000));
-}
-
-function randLink() {
-    return base[randN(0,base.length)];
-};
-
-function randN(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
-};
