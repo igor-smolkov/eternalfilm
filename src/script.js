@@ -5,6 +5,8 @@ import baseJSON from '@file/base.json'
 import baseServ from '@module/connect.js'
 const base = process.env.NODE_ENV === 'development' ?  baseJSON.links : baseServ;
 
+import send from '@module/send.js'
+
 import config from '@file/film.config.json'
 const timer = config.timer;
 const transition = config.transition;
@@ -163,21 +165,13 @@ let addBtn = document.getElementById('add');
 addBtn.addEventListener('click', function(){
     let linkField = document.getElementById('link');
     let linkFull = linkField.value;
+
     linkField.value = '';
     linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
+
     let link = linkFull.slice(linkFull.indexOf('v=')+2,linkFull.length);
 
-    //отправка
-    $.ajax({
-        url: 'setBase.php',
-        dataType: 'text',
-        cache: false,
-        data: ({str: link}),
-        type: 'post',
-        success: function(php_script_response){
-            console.log(php_script_response)
-        }
-    });
+    send(link);
 
     base.push(link);
 });
