@@ -12,7 +12,8 @@ const isProd = !isDev //в режиме продакшена
 //имена входных файлов
 const entryPoint = 'script.js'
 const baseTemplate = 'main.pug'
-const copyFiles = 'static'
+const copyFilesProd = 'static'
+const copyFilesDev = 'static_dev'
 const outputHTML = 'index.html'
 
 //имена выходных файлов в зависимости от режима сборки с хешем и без для различных расширений
@@ -71,7 +72,8 @@ module.exports = {
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'), //алиас на паку исходников
-            '@static': path.resolve(__dirname, 'src/static') //на статичные файлы
+            '@static': path.resolve(__dirname, 'src/static'), //на статичные файлы
+            '@module': path.resolve(__dirname, 'src/modules') //на js файлы-модули
         }
     },
     optimization: optimization(), //вызов вынесенной функции оптимизации
@@ -90,8 +92,9 @@ module.exports = {
         }),
         new CleanWebpackPlugin(),
         new CopyWebpackPlugin({
-            patterns: [
-                {from: path.resolve(__dirname, `src/${copyFiles}/`)} //откуда взять файл
+            patterns: isProd ? [ { from: path.resolve(__dirname, `src/${copyFilesProd}/`) } ] : [ //откуда взять файлы если в продакшн сборку
+                    { from: path.resolve(__dirname, `src/${copyFilesProd}/`) }, //если разработке
+                    { from: path.resolve(__dirname, `src/${copyFilesDev}/`) }
             ]
         }),
         new MiniCssExtractPlugin({

@@ -1,6 +1,8 @@
 import * as $ from 'jquery'
 import '@/style.scss'
-import baseJSON from '@static/base.json'
+import baseJSON from './static_dev/base.json'
+
+//import test from '@module/test.js'
 
 let base = baseJSON.links;
 const timer = 15000;
