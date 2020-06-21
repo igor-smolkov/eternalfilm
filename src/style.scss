@@ -10,9 +10,11 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background-color: black;
+    //background-color: rgb(22, 16, 11);
     .screen {
         flex-grow: 1;
-        background-color: rgb(22, 16, 11);
+        //background-color: rgb(22, 16, 11);
         color: rgb(180, 159, 142);
         display: flex;
         justify-content: center;
@@ -28,19 +30,36 @@ body {
         }
     }
     form {
+        align-self: center;
         display: flex;
+        width: 80%;
         min-width: 200px;
-        min-height: 50px;
+        min-height: 25px;
         justify-content: space-between;
         z-index: 100;
+        background-color: rgb(34, 25, 17);
         input {
+            text-align: center;
             flex-grow: 1;
-            padding: 5px 40px;
-            background-color: rgb(43, 31, 22);
-            color: white;
+            padding: 5px 20px;
+            background-color: rgb(34, 25, 17);
+            color: rgb(180, 159, 142);
+            animation: signal 1s ease-in-out;
+            &[type='text'] {
+                &::placeholder{
+                    color: rgb(78, 59, 45);
+                }
+                &:hover {
+                    background-color: rgb(43, 31, 22);
+                }
+            }
             &[type='button'] {
+                display: none;
+                max-width: 600px;
                 background-color: rgb(22, 16, 11);
                 color: rgb(180, 159, 142);
+                border: 5px solid rgb(34, 25, 17);
+                border-radius: 5px;
                 &:hover {
                     background-color: rgb(43, 31, 22);
                     color: white;
@@ -48,5 +67,14 @@ body {
                 }
             }
         }
+    }
+}
+
+@keyframes signal {
+    from { 
+        background-color: rgb(124, 90, 64);
+    }
+    to { 
+        background-color: rgb(34, 25, 17);
     }
 }

@@ -161,9 +161,22 @@ function playVideo(player) {
     player.loadVideoById(rand.thing(base));
 }
 
+let form = document.querySelector('.add-link');
+let linkField = document.getElementById('link');
+let firstAdd = false
+linkField.addEventListener('mousedown', function(){
+    if (!firstAdd){
+        firstAdd = true;
+        form.style.minHeight = '50px';
+        linkField.style.textAlign = 'left';
+        linkField.value = '';
+        linkField.placeholder = 'подсказка: вставьте ссылку на видео с youtube и нажмите добавить';
+        addBtn.style.display = 'block';
+    }
+});
+
 let addBtn = document.getElementById('add');
 addBtn.addEventListener('click', function(){
-    let linkField = document.getElementById('link');
     let linkFieldValue = linkField.value;
     linkField.value = '';
 
@@ -173,6 +186,6 @@ addBtn.addEventListener('click', function(){
         base.push(link);
         linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
     } else {
-        linkField.placeholder = 'вставьте ссылку на видео в это поле!';
+        linkField.placeholder = 'некорректный формат! пример ссылки: https://www.youtube.com/watch?v=dQw4w9WgXcQ';
     }
 });
