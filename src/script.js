@@ -12,6 +12,7 @@ const timer = config.timer;
 const transition = config.transition;
 
 import * as rand from '@module/rand.js'
+import * as parse from '@module/parse.js'
 
 loadYTApi();
 function loadYTApi() {
@@ -163,14 +164,15 @@ function playVideo(player) {
 let addBtn = document.getElementById('add');
 addBtn.addEventListener('click', function(){
     let linkField = document.getElementById('link');
-    let linkFull = linkField.value;
-
+    let linkFieldValue = linkField.value;
     linkField.value = '';
-    linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
 
-    let link = linkFull.slice(linkFull.indexOf('v=')+2,linkFull.length);
-
-    send(link);
-
-    base.push(link);
+    let link = parse.ytLink(linkFieldValue);
+    if (link !== 'error') {
+        send(link);
+        base.push(link);
+        linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
+    } else {
+        linkField.placeholder = 'вставьте ссылку на видео в это поле!';
+    }
 });
