@@ -1,9 +1,13 @@
-import * as $ from 'jquery'
 import '@/style.scss'
 
 import baseJSON from '@file/base.json'
-import baseServ from '@module/connect.js'
-const base = process.env.NODE_ENV === 'development' ?  baseJSON.links : baseServ;
+let base = baseJSON.links;
+const isProd = process.env.NODE_ENV === 'production';
+import connect from '@module/connect.js'
+if (isProd) { getBase() }
+async function getBase() {
+    base = await connect();
+}
 
 import send from '@module/send.js'
 

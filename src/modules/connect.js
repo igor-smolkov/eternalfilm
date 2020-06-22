@@ -1,15 +1,12 @@
-import * as $ from 'jquery'
-
-let base;
-$.ajax({
-    url: 'getBase.php',
-    dataType: 'json',
-    cache: false,
-    data: '',
-    type: 'post',
-    success: function(php_script_response){
-        base = php_script_response.links;
-    }
-});
-
-export {base};
+export default function() {
+    return new Promise(function (resolve) {
+        const request = new XMLHttpRequest();
+        request.open('GET','getBase.php',true);
+        request.addEventListener('readystatechange', function() {
+            if ((request.readyState==4) && (request.status==200)) {
+                resolve(JSON.parse(request.responseText).links);
+            }
+        });
+        request.send();
+    });
+}
