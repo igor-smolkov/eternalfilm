@@ -36,22 +36,25 @@ screen.addEventListener('click', function(){
 
 let playerOdd, playerEven;
 function onYouTubeIframeAPIReady(player) {
+    currentLink = rand.thing(base);
     if (player === 'odd') {
         playerOdd = new YT.Player('player_odd', {
-            videoId: rand.thing(base),
+            videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
                 'onReady': onPlayerOddReady,
-                'onStateChange': onPlayerOddStateChange
+                'onStateChange': onPlayerOddStateChange,
+                'onError': onPlayerError
             }
         });
     } else if (player === 'even') {
         playerEven = new YT.Player('player_even', {
-            videoId: rand.thing(base),
+            videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
                 'onReady': onPlayerEvenReady,
-                'onStateChange': onPlayerEvenStateChange
+                'onStateChange': onPlayerEvenStateChange,
+                'onError': onPlayerError
             }
         });
     }
@@ -64,6 +67,11 @@ function onPlayerOddReady(event) {
 function onPlayerEvenReady(event) {
     event.target.playVideo();
     transitionStart(event.target);
+}
+
+function onPlayerError(event) {
+    base.splice(base.indexOf(currentLink), 1);
+    playVideo(event.target);
 }
 
 var doneOdd = false;
@@ -161,8 +169,10 @@ function changeFrame(playerPoint) {
     }
 }
 
+let currentLink;
 function playVideo(player) {
-    player.loadVideoById(rand.thing(base));
+    currentLink = rand.thing(base);
+    player.loadVideoById(currentLink);
 }
 
 let form = document.querySelector('.add-link');
@@ -183,12 +193,26 @@ let addBtn = document.getElementById('add');
 addBtn.addEventListener('click', function(){
     let linkFieldValue = linkField.value;
     linkField.value = '';
+    linkField.placeholder = 'идет обработка данных...';
 
     let link = parse.ytLink(linkFieldValue);
     if (link !== 'error') {
-        send(link);
-        base.push(link);
-        linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
+        const request = new XMLHttpRequest();
+        request.open('GET',`https://www.googleapis.com/youtube/v3/videos?id=${link}&key=AIzaSyBjdUFZjn1Nf5NSIqbdzq6MjTn4Ht99blg`,true);
+        request.addEventListener('readystatechange', function() {
+            if ((request.readyState==4) && (request.status==200)) {
+                if (JSON.parse(request.responseText).items.length > 0) {
+                    send(link);
+                    base.push(link);
+                    linkField.placeholder = 'ссылка добавлена, добавьте еще одну';
+                } else {
+                    linkField.placeholder = 'видео не существует, проверьте ссылку';
+                }
+            }
+        });
+        request.send();
+
+        
     } else {
         linkField.placeholder = 'некорректный формат! пример ссылки: https://www.youtube.com/watch?v=dQw4w9WgXcQ';
     }
