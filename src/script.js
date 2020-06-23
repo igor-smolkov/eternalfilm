@@ -1,3 +1,4 @@
+import api from '@/api.json'
 import '@/style.scss'
 
 import baseJSON from '@file/base.json'
@@ -198,7 +199,7 @@ addBtn.addEventListener('click', function(){
     let link = parse.ytLink(linkFieldValue);
     if (link !== 'error') {
         const request = new XMLHttpRequest();
-        request.open('GET',`https://www.googleapis.com/youtube/v3/videos?id=${link}&key=AIzaSyBjdUFZjn1Nf5NSIqbdzq6MjTn4Ht99blg`,true);
+        request.open('GET',`https://www.googleapis.com/youtube/v3/videos?id=${link}&key=${api.key}`,true);
         request.addEventListener('readystatechange', function() {
             if ((request.readyState==4) && (request.status==200)) {
                 if (JSON.parse(request.responseText).items.length > 0) {
