@@ -85,12 +85,16 @@ function onYouTubeIframeAPIReady(player) {
 
 //срабатывает когда нечетный плеер готов
 function onPlayerOddReady(event) {
+    //отключаем звук видео
+    event.target.mute();
     //для данного плеера начать воспроизведение
     event.target.playVideo();
 }
 
 //срабатывает когда четный плеер готов
 function onPlayerEvenReady(event) {
+    //отключаем звук видео
+    event.target.mute();
     //для данного плеера начать воспроизведение
     event.target.playVideo();
     // transitionStart(event.target);
@@ -185,6 +189,8 @@ function jCut(player, duration, type = 'lin', shift = 0) {
     const step = duration/maxVol;
     //устанавливаем громкость на минимум
     player.setVolume(0);
+    //включаем звук видео
+    player.unMute();
     //типы нарастания громкости: линейная, экспоненциальная, резкое включение
     if(type === 'lin'){
         let i = 0;
@@ -233,6 +239,8 @@ let currentLink;
 function playVideo(player) {
     //текущая ссылка (id) = случаная из базы
     currentLink = rand.thing(base);
+    //отключаем звук видео
+    player.mute();
     //подгрузка нового видео с ютуба по id
     player.loadVideoById(currentLink);
 }
