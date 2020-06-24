@@ -40,18 +40,40 @@ function loadYTApi() {
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
-//экран и слуашатель по нажатию на него для запуска показа
+//экран и слушатель по нажатию на него для запуска показа
 let screen = document.querySelector('.screen');
+//флаг начала показа
+let start = false;
 screen.addEventListener('click', function(){
-    //удаляем описание
-    screen.lastChild.remove();
-    //отображаем элемент плеера (нечетный)
-    screen.childNodes[0].classList.toggle('video_none');
-    //создаем первый плеер
-    onYouTubeIframeAPIReady('odd');
-    //с задержкой в продожительность минус переход создаем второй плеер (четный)
-    setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
+    //если показ не начался
+    if (!start) {
+        //показ начался
+        start = true;
+        //устанавливаем фильтр
+        setFilter();
+        //удаляем описание
+        screen.lastChild.remove();
+        //отображаем элемент плеера (нечетный)
+        screen.childNodes[0].classList.toggle('video_none');
+        //создаем первый плеер
+        onYouTubeIframeAPIReady('odd');
+        //с задержкой в продожительность минус переход создаем второй плеер (четный)
+        setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
+    }
 });
+
+//видеофильтр
+function setFilter() {
+    //элемент
+    let filterDiv = screen.querySelector('.filter');
+    //случайный градиент
+    let gradient = "linear-gradient(rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"),rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"),rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"))";
+    filterDiv.style.backgroundImage = gradient;
+    //список фильтров и случайный из них
+    let filters = ["multiply","darken","overlay","color-dodge","color-burn","soft-light","hue","saturation","color"];
+    let filter = filters[rand.n(0,filters.length-1)];
+    filterDiv.style.mixBlendMode = filter;
+}
 
 //нечетный и четный плеер
 let playerOdd, playerEven;
