@@ -30,6 +30,8 @@ const transition = config.transition;
 import * as rand from '@module/rand.js'
 //модуль для парсинга добавляемых пользователями ссылок
 import * as parse from '@module/parse.js'
+//модуль для добавления видео фильтра
+import setFilter from '@module/filter.js'
 
 //запуск iframe api ютуба
 loadYTApi();
@@ -49,8 +51,6 @@ screen.addEventListener('click', function(){
     if (!start) {
         //показ начался
         start = true;
-        //устанавливаем фильтр
-        setFilter();
         //удаляем описание
         screen.lastChild.remove();
         //отображаем элемент плеера (нечетный)
@@ -60,20 +60,13 @@ screen.addEventListener('click', function(){
         //с задержкой в продожительность минус переход создаем второй плеер (четный)
         setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
     }
-});
+});//
 
-//видеофильтр
-function setFilter() {
-    //элемент
-    let filterDiv = screen.querySelector('.filter');
-    //случайный градиент
-    let gradient = "linear-gradient(rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"),rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"),rgb("+rand.n(0,255)+","+rand.n(0,255)+","+rand.n(0,255)+"))";
-    filterDiv.style.backgroundImage = gradient;
-    //список фильтров и случайный из них
-    let filters = ["multiply","darken","overlay","color-dodge","color-burn","soft-light","hue","saturation","color"];
-    let filter = filters[rand.n(0,filters.length-1)];
-    filterDiv.style.mixBlendMode = filter;
-}
+//устанавливаем фильтр
+let filterDiv = screen.querySelector('.filter');
+filterDiv.addEventListener('click', function(){
+    setFilter(filterDiv);
+});
 
 //нечетный и четный плеер
 let playerOdd, playerEven;
@@ -125,6 +118,7 @@ function onPlayerEvenReady(event) {
 //срабатывает когда возникает ошибка (например ошибка встраивания)
 function onPlayerError(event) {
     //удаляем видео из текущей базы
+    console.log(currentLink);
     base.splice(base.indexOf(currentLink), 1);
     //запускаем новое видео
     playVideo(event.target);
