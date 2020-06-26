@@ -33,6 +33,13 @@ import * as parse from '@module/parse.js'
 //модуль для добавления видео фильтра
 import setFilter from '@module/filter.js'
 
+import title from '@module/title.js'
+let titleStr = '';
+getTitle();
+async function getTitle() {
+    titleStr = await title();
+}
+
 //запуск iframe api ютуба
 loadYTApi();
 function loadYTApi() {
@@ -175,7 +182,8 @@ function onPlayerEvenStateChange(event) {
 function changeVideo(player, playerPoint, titleOn = false) {
     if (titleOn) {
         titleDiv.classList.toggle('title_none');
-        titleDiv.firstChild.innerHTML = 'случайный текст';
+        titleDiv.firstChild.innerHTML = titleStr;
+        getTitle(); //следующий заголовок
         setTimeout(titleEnd, transition);
         function titleEnd() {
             titleDiv.classList.toggle('title_none');
