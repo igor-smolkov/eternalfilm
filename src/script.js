@@ -44,6 +44,10 @@ function loadYTApi() {
 
 //экран и слушатель по нажатию на него для запуска показа
 let screen = document.querySelector('.screen');
+let frameOdd = screen.querySelectorAll('.video')[0];
+let frameEven = screen.querySelectorAll('.video')[1];
+let filterDiv = screen.querySelector('.filter');
+let titleDiv =  screen.querySelector('.title');
 //флаг начала показа
 let start = false;
 screen.addEventListener('click', function(){
@@ -52,9 +56,10 @@ screen.addEventListener('click', function(){
         //показ начался
         start = true;
         //удаляем описание
-        screen.lastChild.remove();
+        titleDiv.classList.toggle('title_none');
+        titleDiv.firstChild.classList.toggle('title__text_on');
         //отображаем элемент плеера (нечетный)
-        screen.childNodes[0].classList.toggle('video_none');
+        frameOdd.classList.toggle('video_none');
         //создаем первый плеер
         onYouTubeIframeAPIReady('odd');
         //с задержкой в продожительность минус переход создаем второй плеер (четный)
@@ -63,7 +68,6 @@ screen.addEventListener('click', function(){
 });//
 
 //устанавливаем фильтр
-let filterDiv = screen.querySelector('.filter');
 filterDiv.addEventListener('click', function(){
     setFilter(filterDiv);
 });
@@ -80,39 +84,32 @@ function onYouTubeIframeAPIReady(player) {
             videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerOddReady,
+                'onReady': onPlayerReady,
                 'onStateChange': onPlayerOddStateChange,
                 'onError': onPlayerError
             }
         });
+        frameOdd = document.querySelectorAll('.video')[0];
     } else if (player === 'even') {
         playerEven = new YT.Player('player_even', {
             videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerEvenReady,
+                'onReady': onPlayerReady,
                 'onStateChange': onPlayerEvenStateChange,
                 'onError': onPlayerError
             }
         });
+        frameEven = document.querySelectorAll('.video')[1];
     }
 }
 
-//срабатывает когда нечетный плеер готов
-function onPlayerOddReady(event) {
+//срабатывает когда плеер готов
+function onPlayerReady(event) {
     //отключаем звук видео
     event.target.mute();
     //для данного плеера начать воспроизведение
     event.target.playVideo();
-}
-
-//срабатывает когда четный плеер готов
-function onPlayerEvenReady(event) {
-    //отключаем звук видео
-    event.target.mute();
-    //для данного плеера начать воспроизведение
-    event.target.playVideo();
-    // transitionStart(event.target);
 }
 
 //срабатывает когда возникает ошибка (например ошибка встраивания)
@@ -125,7 +122,7 @@ function onPlayerError(event) {
 }
 
 //флаг окончания нечетного видео
-var doneOdd = false;
+let doneOdd = false;
 //срабатывает когда в нечетном плеере происходят изменения
 function onPlayerOddStateChange(event) {
     //если видео играет и не окончилось
@@ -136,8 +133,13 @@ function onPlayerOddStateChange(event) {
         //JCut монтажная склейка
         jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
+        let titleR = rand.n(1,3);
         //с задержкой в длинну фрагмента меняем видео (нечетный плеер на четный)
-        setTimeout(changeVideo, timer, event.target, 'odd');
+        if(titleR != 1) {
+            setTimeout(changeVideo, timer, event.target, 'odd');
+        } else {
+            setTimeout(changeVideo, timer-transition, event.target, 'odd', true);
+        }
 
         //флаг: видео окончено
         doneOdd = true;
@@ -145,7 +147,7 @@ function onPlayerOddStateChange(event) {
 }
 
 //флаг окончания четного видео
-var doneEven = false;
+let doneEven = false;
 //срабатывает когда в четном плеере происходят изменения
 function onPlayerEvenStateChange(event) {
     //если видео играет и не окончилось
@@ -156,8 +158,13 @@ function onPlayerEvenStateChange(event) {
         //JCut монтажная склейка
         jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
+        let titleR = rand.n(1,3);
         //с задержкой в длинну фрагмента меняем видео (четный плеер на нечетный)
-        setTimeout(changeVideo, timer, event.target, 'even');
+        if (titleR != 1) {
+            setTimeout(changeVideo, timer, event.target, 'even');
+        } else {
+            setTimeout(changeVideo, timer-transition, event.target, 'even', true);
+        }
 
         //флаг: видео окончено
         doneEven = true;
@@ -165,13 +172,28 @@ function onPlayerEvenStateChange(event) {
 }
 
 //смена видео (плееров)
-function changeVideo(player, playerPoint) {
-    //останавливаем воспроизведение у данного плеера
-    player.stopVideo();
+function changeVideo(player, playerPoint, titleOn = false) {
+    if (titleOn) {
+        titleDiv.classList.toggle('title_none');
+        titleDiv.firstChild.innerHTML = 'случайный текст';
+        setTimeout(titleEnd, transition);
+        function titleEnd() {
+            titleDiv.classList.toggle('title_none');
+        }
 
-    //меняем местами фреймы с плеерами
-    screen.childNodes[0].classList.toggle('video_none');
-    screen.childNodes[1].classList.toggle('video_none');
+        setTimeout(playVideo, timer-transition, player);
+        setTimeout(transitionStart, timer-transition, player);
+    } else {
+        //с задержкой в длину фрагмента минус два перехода запускаем данный плеер снова
+        setTimeout(playVideo, timer-transition*2, player); 
+        //новый переход начнется через время фрагмента минус два перехода
+        setTimeout(transitionStart, timer-transition*2, player);
+    }
+
+    frameOdd.classList.toggle('video_none');
+    frameEven.classList.toggle('video_none');
+
+    player.stopVideo();
 
     //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
     if (playerPoint === 'odd') {
@@ -179,12 +201,6 @@ function changeVideo(player, playerPoint) {
     } else if (playerPoint === 'even') {
         doneEven = false;
     }
-
-    //с задержкой в длину фрагмента минус два перехода запускаем данный плеер снова
-    setTimeout(playVideo, timer-transition*2, player);
-
-    //новый переход начнется через время фрагмента минус два перехода
-    setTimeout(transitionStart, timer-transition*2, player);
 }
 
 //начало перехода
