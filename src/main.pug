@@ -10,8 +10,12 @@ block content
         .video.video_hidden#player_odd
         .video.video_hidden#player_even
         .title
-          .title__text= "нажмите на экран, чтобы начать фильм"
+          .title__text нажмите на экран, чтобы начать фильм
         .filter
-      form.control
-        input#link(type="text", value="скопируйте ссылку на ваше видео сюда" autocomplete="off")
-        input#add(type="button", value="добавить ссылку")
+      .control
+        form.form
+          input#link(type="text", value="скопируйте ссылку на ваше видео сюда" autocomplete="off")
+          input#add(type="button", value="добавить ссылку")
+        .mini.mini_none
+          .text.text_none добавить ссылку
+          .logo.logo_none ef

@@ -58,8 +58,15 @@ let titleDiv =  screen.querySelector('.title');
 //флаг начала показа
 let start = false;
 screen.addEventListener('click', function(){
+    if ((!controlSmall)&&(!controlSmallAnim)) {
+        if (!start) {
+            controlReduce(true); 
+        } else {
+            controlReduce();
+        }
+    }
     //если показ не начался
-    if (!start) {
+    if (!start) {       
         //показ начался
         start = true;
         //удаляем описание
@@ -286,7 +293,119 @@ function playVideo(player) {
 }
 
 //форма
-let form = document.querySelector('.control');
+let control = document.querySelector('.control');
+let form = document.querySelector('.form');
+let mini = document.querySelector('.mini');
+let text = document.querySelector('.text');
+let logo = document.querySelector('.logo');
+let animCount;
+let controlSmall = false;
+let controlSmallAnim = false;
+let controlFocus = false;
+let controlFocusAnimEnd = false;
+
+control.addEventListener('animationend', function() {
+    if (!controlSmall) {
+        switch (animCount) {
+            case 1: {
+                mini.classList.toggle('mini_none');
+                text.classList.toggle('text_none');
+                control.classList.toggle('control_anim_square');
+                control.classList.toggle('control_anim_rotate');
+                animCount++;
+                break;
+            }
+            case 2: {
+                text.classList.toggle('text_none');
+                logo.classList.toggle('logo_none');
+                control.classList.toggle('control_anim_rotate');
+                control.classList.toggle('control_small');
+                controlSmall = true;
+                controlSmallAnim = false;
+                controlFocusAnimEnd = true;
+                animCount++;
+                break;
+            }
+        }
+    } else {
+        if (controlFocus) {
+            control.className = "control control_small_square"
+            text.className = 'text';
+            logo.className = 'logo logo_none';
+        } else {
+            control.className = "control control_small"
+            text.className = 'text text_none';
+            logo.className = 'logo';
+        }
+        controlFocusAnimEnd = true;
+    }
+});
+
+control.addEventListener('mouseover', function() {
+    if (controlSmall) {
+        if (controlFocusAnimEnd) {
+            controlFocus = true;
+            controlFocusAnimEnd = false;
+            control.classList.toggle('control_anim_rotate_back');
+        } else {
+            control.className = "control control_small_square"
+            text.className = 'text';
+            logo.className = 'logo logo_none';
+            controlFocusAnimEnd = true;
+        }
+    }
+    if (controlSmallAnim) {
+        controlSmall = true;
+        controlSmallAnim = false;
+        control.className = "control control_small_square"
+        mini.className = 'mini';
+        text.className = 'text';
+        logo.className = 'logo logo_none';
+        controlFocusAnimEnd = true;
+    }
+});
+control.addEventListener('mouseout', function() {
+    if (controlSmall) {
+        if (controlFocusAnimEnd) {
+            controlFocus = false;
+            controlFocusAnimEnd = false;
+            control.classList.toggle('control_anim_rotate');
+        } else {
+            control.className = "control control_small"
+            text.className = 'text text_none';
+            logo.className = 'logo';
+            controlFocusAnimEnd = true;
+        }
+    }
+});
+control.addEventListener('click', function() {
+    if ((controlSmall)&&(!controlSmallAnim)) {
+        controlSmall = false;
+        control.className = "control";
+        form.classList.toggle('form_none');
+        mini.classList.toggle('mini_none');
+        animCount = 0;
+        formProcess();
+        linkField.focus();
+    }
+});
+
+function controlReduce(anim = false) {
+    form.classList.toggle('form_none');
+    if (anim) {
+        controlSmallAnim = true;
+        control.classList.toggle('control_anim_square');
+        animCount = 1;      
+    } else {
+        control.className = "control control_small"
+        mini.classList.toggle('mini_none');
+        text.className = 'text text_none';
+        logo.className = 'logo';
+        controlSmall = true;
+        controlFocusAnimEnd = true;
+    }
+}
+
 //поле ввода ссылки
 let linkField = document.getElementById('link');
 //флаг на добавление первой ссылки
@@ -295,14 +414,17 @@ let firstAdd = false
 linkField.addEventListener('mousedown', function(){
     //если это первое добавление ссылки, то увеличить поле и добавить подсказку
     if (!firstAdd){
-        firstAdd = true;
-        form.style.minHeight = '50px';
-        linkField.style.textAlign = 'left';
-        linkField.value = '';
-        linkField.placeholder = 'подсказка: вставьте ссылку на видео с youtube и нажмите добавить';
-        addBtn.style.display = 'block';
+        formProcess();
     }
 });
+
+function formProcess() {
+    firstAdd = true;
+    linkField.style.textAlign = 'left';
+    linkField.value = '';
+    linkField.placeholder = 'подсказка: вставьте ссылку на видео с youtube и нажмите добавить';
+    addBtn.style.display = 'block';
+}
 
 //кнопка добавления ссылки и обработчик
 let addBtn = document.getElementById('add');

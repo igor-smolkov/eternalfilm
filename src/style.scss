@@ -35,6 +35,7 @@ body {
             display: flex;
             justify-content: center;
             &__text {
+                user-select: none;
                 align-self: center;
                 text-align: center;
                 &_on {
@@ -55,46 +56,139 @@ body {
         }
     }
     .control {
-        align-self: center;
-        //display: flex;
-        display: none;
-        width: 80%;
-        min-width: 200px;
-        min-height: 25px;
-        justify-content: space-between;
-        z-index: 100;
-        background-color: rgb(34, 25, 17);
-        input {
-            text-align: center;
-            flex-grow: 1;
-            padding: 5px 20px;
-            background-color: rgb(34, 25, 17);
-            color: rgb(180, 159, 142);
-            animation: signal 1s ease-in-out;
-            &[type='text'] {
-                &::placeholder{
-                    color: rgb(78, 59, 45);
+        position: absolute;
+        right: 0;
+        width: 100%;
+        height: 50px;
+        background-color: rgb(119, 89, 62);
+        .form {
+            height: 100%;
+            display: flex;
+            input {
+                text-align: center;
+                padding: 5px 20px;
+                background-color: rgb(119, 89, 62);
+                color: rgb(238, 220, 206);
+                //animation: signal 1s ease-in-out;
+                &[type='text'] {
+                    width: 100%;
+                    &::placeholder{
+                        color: rgb(78, 59, 45);
+                    }
+                    &:hover {
+                        background-color: rgb(145, 108, 76);
+                    }
                 }
-                &:hover {
-                    background-color: rgb(43, 31, 22);
+                &[type='button'] {
+                    display: none;
+                    width: 250px;
+                    background-color: rgb(70, 52, 37);
+                    border: 5px solid rgb(119, 89, 62);
+                    border-radius: 5px;
+                    &:hover {
+                        background-color: rgb(82, 60, 43);
+                        color: white;
+                        border: 1px solid rgb(173, 148, 136);
+                    }
                 }
             }
-            &[type='button'] {
+            &_none {
                 display: none;
-                max-width: 600px;
-                background-color: rgb(22, 16, 11);
-                color: rgb(180, 159, 142);
-                border: 5px solid rgb(34, 25, 17);
-                border-radius: 5px;
-                &:hover {
-                    background-color: rgb(43, 31, 22);
-                    color: white;
-                    border: 1px solid rgb(180, 159, 142);
+            }
+            &_anim_disapp {
+                animation: disapp 1s;
+            }
+        }
+        .mini {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            user-select: none;
+            .text {
+                align-self: center;
+                text-align: center;
+                color: rgb(238, 220, 206);
+                &_none {
+                    display: none;
                 }
             }
+            .logo {
+                align-self: center;
+                font-size: 100px;
+                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;                
+                color: rgb(0, 0, 0);
+                &_none {
+                    display: none;
+                }
+            }
+            &_none {
+                display: none;
+            }
+        }
+        &_small {
+            top: 50px;
+            right: 50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+        &_small_square {
+            top: 50px;
+            right: 50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 0;
+            opacity: 1;
+        }
+        &_anim_square {
+            animation: sign_square 1s;
+        }
+        &_anim_rotate {
+            top: 50px;
+            right: 50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 0;
+            opacity: 1;
+            animation: sign_rotate 1s ease-in;
+        }
+        &_anim_rotate_back {
+            animation: sign_rotate_back 0.5s;
         }
     }
 }
+
+@keyframes sign_square {
+    to { 
+        height: 150px;
+        width: 150px;
+        top: 50px;
+        right: 50px;
+    }
+}
+@keyframes sign_rotate {
+    to { 
+        transform: rotate(-720deg);
+        border-radius: 50%;
+        opacity: 0.3;
+    }
+}
+@keyframes sign_rotate_back {
+    to { 
+        transform: rotate(180deg);
+        border-radius: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes disapp {
+    to { 
+        opacity: 0;
+    }
+}
+
 
 @keyframes signal {
     from { 
