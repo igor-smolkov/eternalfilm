@@ -10,19 +10,21 @@ body {
     height: 100%;
     background-color: black;
     .screen {
+        position: absolute;
         width: 100%;
         height: 100%;
         color: rgb(180, 159, 142);
         display: flex;
         overflow: hidden;
         .video {
-            display: block;
+            position: absolute;
             width: 100%;
             height: 100%;
+            visibility: visible;
             //transform: scale(1.15);
             transform: scale(1.5);
-            &_none {
-                display: none;
+            &_hidden {
+                visibility: hidden;
             }
         }
         .title {
@@ -52,7 +54,7 @@ body {
             height: 100%;
         }
     }
-    form {
+    .control {
         align-self: center;
         //display: flex;
         display: none;

@@ -7,11 +7,11 @@ block variables
 block content
     .cinema
       .screen
-        .video.video_none#player_odd
-        .video.video_none#player_even
+        .video.video_hidden#player_odd
+        .video.video_hidden#player_even
         .title
           .title__text= "нажмите на экран, чтобы начать фильм"
         .filter
-      form.add-link
+      form.control
         input#link(type="text", value="скопируйте ссылку на ваше видео сюда" autocomplete="off")
         input#add(type="button", value="добавить ссылку")

@@ -66,7 +66,7 @@ screen.addEventListener('click', function(){
         titleDiv.classList.toggle('title_none');
         titleDiv.firstChild.classList.toggle('title__text_on');
         //отображаем элемент плеера (нечетный)
-        frameOdd.classList.toggle('video_none');
+        frameOdd.classList.toggle('video_hidden');
         //создаем первый плеер
         onYouTubeIframeAPIReady('odd');
         //с задержкой в продожительность минус переход создаем второй плеер (четный)
@@ -198,8 +198,8 @@ function changeVideo(player, playerPoint, titleOn = false) {
         setTimeout(transitionStart, timer-transition*2, player);
     }
 
-    frameOdd.classList.toggle('video_none');
-    frameEven.classList.toggle('video_none');
+    frameOdd.classList.toggle('video_hidden');
+    frameEven.classList.toggle('video_hidden');
 
     player.stopVideo();
 
@@ -286,7 +286,7 @@ function playVideo(player) {
 }
 
 //форма
-let form = document.querySelector('.add-link');
+let form = document.querySelector('.control');
 //поле ввода ссылки
 let linkField = document.getElementById('link');
 //флаг на добавление первой ссылки
