@@ -9,153 +9,206 @@ body {
     width: 100%;
     height: 100%;
     background-color: black;
-    .screen {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        color: rgb(180, 159, 142);
-        display: flex;
-        overflow: hidden;
-        .video {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            visibility: visible;
-            //transform: scale(1.15);
-            transform: scale(1.5);
-            &_hidden {
-                visibility: hidden;
-            }
-        }
-        .title {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            &__text {
-                user-select: none;
-                align-self: center;
-                text-align: center;
-                &_on {
-                    font-size: 64px;
-                    line-height: 100px;
-                    text-transform: uppercase;
-                    font-family: 'Arial Black';
-                }
-            }
-            &_none {
-                display: none;
-            }
-        }
-        .filter {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+}
+
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: rgb(180, 159, 142);
+    display: flex;
+    overflow: hidden;
+}
+.video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    visibility: visible;
+    //transform: scale(1.15);
+    transform: scale(1.5);
+    &_hidden {
+        visibility: hidden;
+    }
+}
+.title {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    &__text {
+        user-select: none;
+        align-self: center;
+        text-align: center;
+        &_on {
+            font-size: 64px;
+            line-height: 100px;
+            text-transform: uppercase;
+            font-family: 'Arial Black';
         }
     }
+    &_none {
+        display: none;
+    }
+}
+.filter {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.control {
+    position: absolute;
+    top: 0;
+    right: 10%;
+    width: 80%;
+    height: 50px;
+    background-color: rgb(119, 89, 62);
+    &_small {
+        top: 50px;
+        right: 50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        opacity: 0.3;
+    }
+    &_small_square {
+        top: 50px;
+        right: 50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 0;
+        opacity: 1;
+    }
+    &_anim_square {
+        animation: sign_square 1s;
+    }
+    &_anim_rotate {
+        top: 50px;
+        right: 50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 0;
+        opacity: 1;
+        animation: sign_rotate 1s ease-in;
+    }
+    &_anim_rotate_back {
+        animation: sign_rotate_back 0.5s;
+    }
+}
+.form {
+    height: 100%;
+    display: flex;
+    input {
+        height: 100%;
+        text-align: center;
+        padding: 5px 20px;
+        background-color: rgb(119, 89, 62);
+        color: rgb(238, 220, 206);
+        &[type='text'] {
+            width: 100%;
+            &::placeholder{
+                color: rgb(78, 59, 45);
+            }
+            &:hover {
+                background-color: rgb(145, 108, 76);
+            }
+        }
+        &[type='button'] {
+            display: none;
+            width: 250px;
+            background-color: rgb(70, 52, 37);
+            border: 5px solid rgb(119, 89, 62);
+            border-radius: 5px;
+            &:hover {
+                background-color: rgb(82, 60, 43);
+                color: white;
+                border: 1px solid rgb(173, 148, 136);
+            }
+        }
+    }
+    &_none {
+        display: none;
+    }
+    &_anim_disapp {
+        animation: disapp 1s;
+    }
+}
+.mini {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    .text {
+        align-self: center;
+        text-align: center;
+        color: rgb(238, 220, 206);
+        &_none {
+            display: none;
+        }
+    }
+    .logo {
+        align-self: center;
+        font-size: 100px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;                
+        color: rgb(0, 0, 0);
+        &_none {
+            display: none;
+        }
+    }
+    &_none {
+        display: none;
+    }
+}
+
+@media only screen and (max-width : 1000px) {
     .control {
-        position: absolute;
         right: 0;
         width: 100%;
-        height: 50px;
-        background-color: rgb(119, 89, 62);
-        .form {
-            height: 100%;
-            display: flex;
-            input {
-                text-align: center;
-                padding: 5px 20px;
-                background-color: rgb(119, 89, 62);
-                color: rgb(238, 220, 206);
-                //animation: signal 1s ease-in-out;
-                &[type='text'] {
-                    width: 100%;
-                    &::placeholder{
-                        color: rgb(78, 59, 45);
-                    }
-                    &:hover {
-                        background-color: rgb(145, 108, 76);
-                    }
-                }
-                &[type='button'] {
-                    display: none;
-                    width: 250px;
-                    background-color: rgb(70, 52, 37);
-                    border: 5px solid rgb(119, 89, 62);
-                    border-radius: 5px;
-                    &:hover {
-                        background-color: rgb(82, 60, 43);
-                        color: white;
-                        border: 1px solid rgb(173, 148, 136);
-                    }
-                }
-            }
-            &_none {
-                display: none;
-            }
-            &_anim_disapp {
-                animation: disapp 1s;
-            }
-        }
-        .mini {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            user-select: none;
-            .text {
-                align-self: center;
-                text-align: center;
-                color: rgb(238, 220, 206);
-                &_none {
-                    display: none;
-                }
-            }
-            .logo {
-                align-self: center;
-                font-size: 100px;
-                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;                
-                color: rgb(0, 0, 0);
-                &_none {
-                    display: none;
-                }
-            }
-            &_none {
-                display: none;
-            }
-        }
-        &_small {
-            top: 50px;
-            right: 50px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            opacity: 0.3;
-        }
-        &_small_square {
-            top: 50px;
-            right: 50px;
-            width: 150px;
-            height: 150px;
-            border-radius: 0;
-            opacity: 1;
+        height: 75px;
+        font-size: 30px;
+        &_small,
+        &_small_square,
+        &_anim_rotate {
+            top: 25px;
+            right: 25px;
+            width: 100px;
+            height: 100px;
         }
         &_anim_square {
-            animation: sign_square 1s;
+            animation: sign_square_phone 1s;
         }
+    }
+    .mini {
+        .text {
+            display: none;
+        }
+        .logo {
+            font-size: 65px;
+        }
+    }
+}
+@media only screen and (max-width : 500px) {
+    .control {
+        height: 150px;
+        &_small,
+        &_small_square,
         &_anim_rotate {
-            top: 50px;
-            right: 50px;
-            width: 150px;
-            height: 150px;
-            border-radius: 0;
-            opacity: 1;
-            animation: sign_rotate 1s ease-in;
+            top: 25px;
+            right: 25px;
+            width: 100px;
+            height: 100px;
         }
-        &_anim_rotate_back {
-            animation: sign_rotate_back 0.5s;
+        &_anim_square {
+            animation: sign_square_phone 1s;
+        }
+    }
+    .form {
+        flex-direction: column;
+        input[type='button'] {
+            width: 100%;
         }
     }
 }
@@ -166,6 +219,14 @@ body {
         width: 150px;
         top: 50px;
         right: 50px;
+    }
+}
+@keyframes sign_square_phone {
+    to { 
+        height: 100px;
+        width: 100px;
+        top: 25px;
+        right: 25px;
     }
 }
 @keyframes sign_rotate {
@@ -186,15 +247,5 @@ body {
 @keyframes disapp {
     to { 
         opacity: 0;
-    }
-}
-
-
-@keyframes signal {
-    from { 
-        background-color: rgb(124, 90, 64);
-    }
-    to { 
-        background-color: rgb(34, 25, 17);
     }
 }
