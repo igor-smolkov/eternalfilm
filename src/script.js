@@ -64,6 +64,8 @@ screen.addEventListener('click', function(){
         } else {
             controlReduce();
         }
+    } else {
+        setFilter(filterDiv);
     }
     //если показ не начался
     if (!start) {       
@@ -72,6 +74,8 @@ screen.addEventListener('click', function(){
         //удаляем описание
         titleDiv.classList.toggle('title_none');
         titleDiv.firstChild.classList.toggle('title__text_on');
+        //устанавливаем фильтр
+        setFilter(filterDiv);
         //отображаем элемент плеера (нечетный)
         frameOdd.classList.toggle('video_hidden');
         //создаем первый плеер
@@ -80,11 +84,6 @@ screen.addEventListener('click', function(){
         setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
     }
 });//
-
-//устанавливаем фильтр
-filterDiv.addEventListener('click', function(){
-    setFilter(filterDiv);
-});
 
 //нечетный и четный плеер
 let playerOdd, playerEven;
