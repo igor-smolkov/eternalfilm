@@ -99,6 +99,20 @@ body {
         animation: sign_rotate_back 0.5s;
     }
 }
+input {
+    background-color: rgb(119, 89, 62);
+    color: rgb(238, 220, 206);
+    &[type='button'] {
+        background-color: rgb(70, 52, 37);
+        border: 2px solid rgb(119, 89, 62);
+        border-radius: 5px;
+        &:hover {
+            background-color: rgb(82, 60, 43);
+            color: white;
+            border: 1px solid rgb(173, 148, 136);
+        }
+    }
+}
 .form {
     height: 100%;
     display: flex;
@@ -106,8 +120,6 @@ body {
         height: 100%;
         text-align: center;
         padding: 5px 20px;
-        background-color: rgb(119, 89, 62);
-        color: rgb(238, 220, 206);
         &[type='text'] {
             width: 100%;
             &::placeholder{
@@ -120,13 +132,9 @@ body {
         &[type='button'] {
             display: none;
             width: 250px;
-            background-color: rgb(70, 52, 37);
-            border: 5px solid rgb(119, 89, 62);
-            border-radius: 5px;
+            border-width: 5px;
             &:hover {
-                background-color: rgb(82, 60, 43);
-                color: white;
-                border: 1px solid rgb(173, 148, 136);
+                border-width: 1px;
             }
         }
     }
@@ -143,10 +151,16 @@ body {
     width: 100%;
     height: 100%;
     user-select: none;
-    .text {
+    .opt {
         align-self: center;
+        display: flex;
+        flex-direction: column;
         text-align: center;
         color: rgb(238, 220, 206);
+        input {
+            width: 120px;
+            height: 35px;
+        }
         &_none {
             display: none;
         }
@@ -200,7 +214,7 @@ body {
         }
     }
     .mini {
-        .text {
+        .opt {
             display: none;
         }
         .logo {

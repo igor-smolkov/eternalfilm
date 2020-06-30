@@ -295,27 +295,29 @@ function playVideo(player) {
 let control = document.querySelector('.control');
 let form = document.querySelector('.form');
 let mini = document.querySelector('.mini');
-let text = document.querySelector('.text');
+let opt = document.querySelector('.opt');
+let back = document.getElementById('back');
 let logo = document.querySelector('.logo');
 let animCount;
 let controlSmall = false;
 let controlSmallAnim = false;
 let controlFocus = false;
 let controlFocusAnimEnd = false;
+let isTouch = true;
 
 control.addEventListener('animationend', function() {
     if (!controlSmall) {
         switch (animCount) {
             case 1: {
                 mini.classList.toggle('mini_none');
-                text.classList.toggle('text_none');
+                opt.classList.toggle('opt_none');
                 control.classList.toggle('control_anim_square');
                 control.classList.toggle('control_anim_rotate');
                 animCount++;
                 break;
             }
             case 2: {
-                text.classList.toggle('text_none');
+                opt.classList.toggle('opt_none');
                 logo.classList.toggle('logo_none');
                 control.classList.toggle('control_anim_rotate');
                 control.classList.toggle('control_small');
@@ -329,11 +331,11 @@ control.addEventListener('animationend', function() {
     } else {
         if (controlFocus) {
             control.className = "control control_small_square"
-            text.className = 'text';
+            opt.className = 'opt';
             logo.className = 'logo logo_none';
         } else {
             control.className = "control control_small"
-            text.className = 'text text_none';
+            opt.className = 'opt opt_none';
             logo.className = 'logo';
         }
         controlFocusAnimEnd = true;
@@ -348,7 +350,7 @@ control.addEventListener('mouseover', function() {
             control.classList.toggle('control_anim_rotate_back');
         } else {
             control.className = "control control_small_square"
-            text.className = 'text';
+            opt.className = 'opt';
             logo.className = 'logo logo_none';
             controlFocusAnimEnd = true;
         }
@@ -358,10 +360,11 @@ control.addEventListener('mouseover', function() {
         controlSmallAnim = false;
         control.className = "control control_small_square"
         mini.className = 'mini';
-        text.className = 'text';
+        opt.className = 'opt';
         logo.className = 'logo logo_none';
         controlFocusAnimEnd = true;
     }
+    isTouch = false;
 });
 control.addEventListener('mouseout', function() {
     if (controlSmall) {
@@ -371,22 +374,21 @@ control.addEventListener('mouseout', function() {
             control.classList.toggle('control_anim_rotate');
         } else {
             control.className = "control control_small"
-            text.className = 'text text_none';
+            opt.className = 'opt opt_none';
             logo.className = 'logo';
             controlFocusAnimEnd = true;
         }
     }
 });
+
 control.addEventListener('click', function() {
-    if ((controlSmall)&&(!controlSmallAnim)) {
-        controlSmall = false;
-        control.className = "control";
-        form.classList.toggle('form_none');
-        mini.classList.toggle('mini_none');
-        animCount = 0;
-        formProcess();
-        linkField.focus();
+    if ((controlSmall)&&(!controlSmallAnim)&&(isTouch)) {
+        controlBack();
     }
+});
+
+back.addEventListener('click', function() {
+    controlBack();
 });
 
 function controlReduce(anim = false) {
@@ -398,11 +400,21 @@ function controlReduce(anim = false) {
     } else {
         control.className = "control control_small"
         mini.classList.toggle('mini_none');
-        text.className = 'text text_none';
+        opt.className = 'opt opt_none';
         logo.className = 'logo';
         controlSmall = true;
         controlFocusAnimEnd = true;
     }
+}
+
+function controlBack() {
+    controlSmall = false;
+    control.className = "control";
+    form.classList.toggle('form_none');
+    mini.classList.toggle('mini_none');
+    animCount = 0;
+    formProcess();
+    linkField.focus();
 }
 
 //поле ввода ссылки
