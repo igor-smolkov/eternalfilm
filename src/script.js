@@ -121,8 +121,12 @@ function onYouTubeIframeAPIReady(player) {
 function onPlayerReady(event) {
     //отключаем звук видео
     event.target.mute();
-    //для данного плеера начать воспроизведение
-    event.target.playVideo();
+    if (!paused) {
+        //для данного плеера начать воспроизведение
+        event.target.playVideo();
+    } else {
+        event.target.pauseVideo();
+    }
 }
 
 //срабатывает когда возникает ошибка (например ошибка встраивания)
@@ -186,34 +190,36 @@ function onPlayerEvenStateChange(event) {
 
 //смена видео (плееров)
 function changeVideo(player, playerPoint, titleOn = false) {
-    if (titleOn) {
-        titleDiv.classList.toggle('title_none');
-        titleDiv.firstChild.innerHTML = titleStr;
-        getTitle(); //следующий заголовок
-        setTimeout(titleEnd, transition);
-        function titleEnd() {
+    if (!paused) {
+        if (titleOn) {
             titleDiv.classList.toggle('title_none');
+            titleDiv.firstChild.innerHTML = titleStr;
+            getTitle(); //следующий заголовок
+            setTimeout(titleEnd, transition);
+            function titleEnd() {
+                titleDiv.classList.toggle('title_none');
+            }
+
+            setTimeout(playVideo, timer-transition, player);
+            setTimeout(transitionStart, timer-transition, player);
+        } else {
+            //с задержкой в длину фрагмента минус два перехода запускаем данный плеер снова
+            setTimeout(playVideo, timer-transition*2, player); 
+            //новый переход начнется через время фрагмента минус два перехода
+            setTimeout(transitionStart, timer-transition*2, player);
         }
 
-        setTimeout(playVideo, timer-transition, player);
-        setTimeout(transitionStart, timer-transition, player);
-    } else {
-        //с задержкой в длину фрагмента минус два перехода запускаем данный плеер снова
-        setTimeout(playVideo, timer-transition*2, player); 
-        //новый переход начнется через время фрагмента минус два перехода
-        setTimeout(transitionStart, timer-transition*2, player);
-    }
+        frameOdd.classList.toggle('video_hidden');
+        frameEven.classList.toggle('video_hidden');
 
-    frameOdd.classList.toggle('video_hidden');
-    frameEven.classList.toggle('video_hidden');
+        player.stopVideo();
 
-    player.stopVideo();
-
-    //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
-    if (playerPoint === 'odd') {
-        doneOdd = false;
-    } else if (playerPoint === 'even') {
-        doneEven = false;
+        //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
+        if (playerPoint === 'odd') {
+            doneOdd = false;
+        } else if (playerPoint === 'even') {
+            doneEven = false;
+        }
     }
 }
 
@@ -283,12 +289,25 @@ function jCut(player, duration, type = 'lin', shift = 0) {
 let currentLink;
 //запуск нового видео
 function playVideo(player) {
-    //текущая ссылка (id) = случаная из базы
-    currentLink = rand.thing(base);
-    //отключаем звук видео
-    player.mute();
-    //подгрузка нового видео с ютуба по id
-    player.loadVideoById(currentLink);
+    if (!paused) {
+        //текущая ссылка (id) = случаная из базы
+        currentLink = rand.thing(base);
+        //отключаем звук видео
+        player.mute();
+        //подгрузка нового видео с ютуба по id
+        player.loadVideoById(currentLink);
+    }
+}
+
+let paused = false;
+function pause() {
+    paused = true;
+    if (playerOdd !== undefined) {
+        playerOdd.pauseVideo();
+    }
+    if (playerEven !== undefined) {
+        playerEven.pauseVideo();
+    }
 }
 
 //форма
@@ -296,8 +315,9 @@ let control = document.querySelector('.control');
 let form = document.querySelector('.form');
 let mini = document.querySelector('.mini');
 let opt = document.querySelector('.opt');
-let back = document.getElementById('back');
 let logo = document.querySelector('.logo');
+let backBtn = document.getElementById('back');
+let pauseBtn = document.getElementById('pause');
 let animCount;
 let controlSmall = false;
 let controlSmallAnim = false;
@@ -412,17 +432,16 @@ function becomeLogo() {
     }
 }
 
-// control.addEventListener('click', function() {
-//     if ((controlSmall)&&(!controlSmallAnim)) {
-//         controlBack();
-//     }
-// });
-
-back.addEventListener('mouseup', function() {
+backBtn.addEventListener('mouseup', function() {
     controlBack();
 });
-back.addEventListener('touchstart', function() {
+backBtn.addEventListener('touchstart', function() {
     controlBack();
+});
+
+pauseBtn.addEventListener('mouseup', function() {
+    pause();
+    pauseBtn.value = 'дальше'
 });
 
 function controlReduce(anim = false) {
