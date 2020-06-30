@@ -147,7 +147,7 @@ function onPlayerOddStateChange(event) {
         //JCut монтажная склейка
         jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
-        let titleR = rand.n(1,3);
+        let titleR = rand.n(1,6);
         //с задержкой в длинну фрагмента меняем видео (нечетный плеер на четный)
         if(titleR != 1) {
             setTimeout(changeVideo, timer, event.target, 'odd');
@@ -172,7 +172,7 @@ function onPlayerEvenStateChange(event) {
         //JCut монтажная склейка
         jCut(event.target, transition, rand.thing(['lin', 'exp']));
 
-        let titleR = rand.n(1,3);
+        let titleR = rand.n(1,6);
         //с задержкой в длинну фрагмента меняем видео (четный плеер на нечетный)
         if (titleR != 1) {
             setTimeout(changeVideo, timer, event.target, 'even');
