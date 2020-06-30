@@ -303,7 +303,7 @@ let controlSmall = false;
 let controlSmallAnim = false;
 let controlFocus = false;
 let controlFocusAnimEnd = false;
-let isTouch = true;
+let isTouch = false;
 
 control.addEventListener('animationend', function() {
     if (!controlSmall) {
@@ -342,7 +342,39 @@ control.addEventListener('animationend', function() {
     }
 });
 
+
 control.addEventListener('mouseover', function() {
+    if (!isTouch) {
+        becomeOpt();
+    }
+});
+control.addEventListener('mouseout', function() {
+    if (!isTouch) {
+        becomeLogo();
+    }
+});
+
+let touchFlag = false;
+control.addEventListener('touchstart', function() {
+    isTouch = true;
+    if (!touchFlag) {
+        touchFlag = true;
+        becomeOpt();
+    } else {
+        touchFlag = false;
+        becomeLogo();
+    }
+});
+
+screen.addEventListener('touchstart', function() {
+    isTouch = true;
+    if (touchFlag) {
+        touchFlag = false;
+        becomeLogo();
+    }
+});
+
+function becomeOpt() {
     if (controlSmall) {
         if (controlFocusAnimEnd) {
             controlFocus = true;
@@ -364,9 +396,8 @@ control.addEventListener('mouseover', function() {
         logo.className = 'logo logo_none';
         controlFocusAnimEnd = true;
     }
-    isTouch = false;
-});
-control.addEventListener('mouseout', function() {
+}
+function becomeLogo() {
     if (controlSmall) {
         if (controlFocusAnimEnd) {
             controlFocus = false;
@@ -379,15 +410,18 @@ control.addEventListener('mouseout', function() {
             controlFocusAnimEnd = true;
         }
     }
-});
+}
 
-control.addEventListener('click', function() {
-    if ((controlSmall)&&(!controlSmallAnim)&&(isTouch)) {
-        controlBack();
-    }
-});
+// control.addEventListener('click', function() {
+//     if ((controlSmall)&&(!controlSmallAnim)) {
+//         controlBack();
+//     }
+// });
 
-back.addEventListener('click', function() {
+back.addEventListener('mouseup', function() {
+    controlBack();
+});
+back.addEventListener('touchstart', function() {
     controlBack();
 });
 

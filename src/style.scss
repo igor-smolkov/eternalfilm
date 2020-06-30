@@ -158,8 +158,8 @@ input {
         text-align: center;
         color: rgb(238, 220, 206);
         input {
-            width: 120px;
-            height: 35px;
+            width: 115px;
+            height: 45px;
         }
         &_none {
             display: none;
@@ -215,7 +215,11 @@ input {
     }
     .mini {
         .opt {
-            display: none;
+            font-size: 10px;
+            input {
+                width: 60px;
+                height: 30px;
+            }
         }
         .logo {
             font-size: 50px;
