@@ -58,6 +58,9 @@ let titleDiv =  screen.querySelector('.title');
 let titleShow = false;
 //флаг начала показа
 let start = false;
+let firstCycleOdd = false;
+let firstCycleEven = false;
+let toEvenFirst, toOddPlayNew, toOddChangeVideo, toEvenPlayNew, toEvenChangeVideo;
 screen.addEventListener('click', function(){
     if ((!controlSmall)&&(!controlSmallAnim)) {
         if (!start) {
@@ -82,7 +85,7 @@ screen.addEventListener('click', function(){
         //создаем первый плеер
         onYouTubeIframeAPIReady('odd');
         //с задержкой в продожительность минус переход создаем второй плеер (четный)
-        setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
+        toEvenFirst = setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
     }
 });//
 //текущая ссылка (id видео)
@@ -129,6 +132,13 @@ function onYouTubeIframeAPIReady(player) {
 
 function playerPlayNew(player) {
     if (!paused) {
+        if (player.order === 'odd') {
+            clearTimeout(toOddPlayNew);
+            toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
+        } else if (player.order === 'even') {
+            clearTimeout(toEvenPlayNew);
+            toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
+        }
         //текущая ссылка (id) = случаная из базы
         currentLink = rand.thing(base);
         //отключаем звук видео
@@ -137,7 +147,6 @@ function playerPlayNew(player) {
         player.loadVideoById(currentLink);
         player.playVideo();
         //jCut(player, transition, rand.thing(['lin', 'exp']));
-        setTimeout(playerPlayNew, (timer-transition)*2, player);
     }
 }
 
@@ -148,8 +157,15 @@ function onPlayerReady(event) {
     if (!paused) {
         //для данного плеера начать воспроизведение
         event.target.playVideo();
-        setTimeout(playerPlayNew, (timer-transition)*2, event.target);
-        setTimeout(changeVideo, timer, event.target);
+        if(toOddPlayNew === undefined) {
+            toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
+            toOddChangeVideo = setTimeout(changeVideo, timer, event.target);
+            console.log('odd to');
+        } else {
+            toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
+            toEvenChangeVideo = setTimeout(changeVideo, timer, event.target);
+            console.log('even to');
+        }
     } else {
         event.target.pauseVideo();
     }
@@ -233,6 +249,13 @@ function changeVideo(player, titleOn = false) {
         //     setTimeout(transitionStart, timer-transition*2, player);
         // }
 
+    if (!paused) {
+        if (!firstCycleOdd) {
+            firstCycleOdd = true;
+        } else {
+            firstCycleEven = true;
+        }
+
         frameOdd.classList.toggle('video_hidden');
         frameEven.classList.toggle('video_hidden');
 
@@ -241,11 +264,15 @@ function changeVideo(player, titleOn = false) {
         //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
         if (player.order === 'odd') {
             doneOdd = false;
+            clearTimeout(toOddChangeVideo);
+            toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
         } else if (player.order === 'even') {
             doneEven = false;
+            clearTimeout(toEvenChangeVideo);
+            toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
         }
-
-        setTimeout(changeVideo, (timer-transition)*2, player);
+    }
+    console.log('pdl')
     // }
 }
 
@@ -296,7 +323,7 @@ function jCut(player, duration, type = 'lin', shift = 0) {
         }
     }
     //переход закончится за время перехода
-    setTimeout(playerHiddHandler, duration, player);
+    //setTimeout(playerHiddHandler, duration, player);
 }
 
 let paused = false;
@@ -320,34 +347,40 @@ function pause() {
             playerEven.pauseVideo();
         }
     }
+    clearTimeout(toEvenFirst);
+    clearTimeout(toOddPlayNew);
+    clearTimeout(toOddChangeVideo);
+    clearTimeout(toEvenPlayNew);
+    clearTimeout(toEvenChangeVideo);
 }
 function play() {
     paused = false;
-    // if (playerOdd !== undefined) {
-    //     playerOdd.playVideo();
-    // }
-    // if (playerEven === undefined) {
-    //     setTimeout(onYouTubeIframeAPIReady, timer-transition-playerOdd.cutCurrentTime, 'even');
-    // } else {
-    //     if ((timer-playerEven.passedTime) > transition) {
-    //         doneOdd = false;
-    //         setTimeout(playNewVideo, timer-transition-playerEven.passedTime, playerOdd);
-    //         console.log('b: '+(playerEven.passedTime));
-    //     } else if ((timer-playerEven.passedTime) < transition) {
-    //         doneOdd = true;
-    //         setTimeout(changeVideo, (timer-playerEven.passedTime)+transition*2, playerOdd, 'odd');
-    //         console.log('m: '+(playerEven.passedTime));
-    //     } else {
-    //         changeVideo(playerOdd, 'odd');
-    //         console.log('=: '+(playerEven.passedTime));
-    //     }
-    //     doneEven = true;
-    //     setTimeout(changeVideo, timer-playerEven.passedTime, playerEven, 'even');
-    //     playerEven.playVideo();
 
-        // setTimeout(playX, Math.abs(timer-transition-playerOdd.passedTime));
-        // console.log(Math.abs(timer-transition-Math.round(playerOdd.passedTime*1000)));
-    // }
+    if (playerOdd.cutCurrentTime !== -1) {
+        playerOdd.playVideo();
+        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerOdd.cutCurrentTime, playerOdd);
+        toOddChangeVideo = setTimeout(changeVideo, timer-playerOdd.cutCurrentTime, playerOdd);
+
+        if (playerEven === undefined) {
+            toEvenFirst = setTimeout(onYouTubeIframeAPIReady, timer-transition-playerOdd.cutCurrentTime, 'even');
+        } else {
+            if (playerEven.cutCurrentTime !== -1) {
+                playerEven.playVideo();
+                toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
+                toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
+            } else {
+                toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerOdd.cutCurrentTime-transition), playerEven);
+                toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerOdd.cutCurrentTime-transition), playerEven);
+            }
+        }
+    } else {
+        playerEven.playVideo();
+        toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
+        toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
+
+        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerEven.cutCurrentTime-transition), playerOdd);
+        toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerEven.cutCurrentTime-transition), playerOdd);
+    }
 }
 
 function playVideo(player) {
