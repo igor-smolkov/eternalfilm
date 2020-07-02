@@ -126,15 +126,9 @@ function onYouTubeIframeAPIReady(player) {
         frameEven = document.querySelectorAll('.video')[1];
     }
 }
-function playerHiddHandler(player) {
-    if(player.order === 'odd'){
-        frameOdd.classList.toggle('video_hidden');
-    } else if (player.order === 'even') {
-        frameEven.classList.toggle('video_hidden');
-    }
-}
+
 function playerPlayNew(player) {
-    (!paused) {
+    if (!paused) {
         //текущая ссылка (id) = случаная из базы
         currentLink = rand.thing(base);
         //отключаем звук видео
@@ -142,8 +136,8 @@ function playerPlayNew(player) {
         //подгрузка нового видео с ютуба по id
         player.loadVideoById(currentLink);
         player.playVideo();
-        jCut(player, transition, rand.thing(['lin', 'exp']));
-        setTimeout(playNewVideo, timer*2-transition*2, player);
+        //jCut(player, transition, rand.thing(['lin', 'exp']));
+        setTimeout(playerPlayNew, (timer-transition)*2, player);
     }
 }
 
@@ -154,11 +148,15 @@ function onPlayerReady(event) {
     if (!paused) {
         //для данного плеера начать воспроизведение
         event.target.playVideo();
-        setTimeout(playNewVideo, timer*2-transition*2, event.target);
-        setTimeout(changeVideo, event.target.cutDuration, event.target);
+        setTimeout(playerPlayNew, (timer-transition)*2, event.target);
+        setTimeout(changeVideo, timer, event.target);
     } else {
         event.target.pauseVideo();
     }
+}
+
+function firstPlay(player) {
+    
 }
 
 //срабатывает когда возникает ошибка (например ошибка встраивания)
@@ -176,16 +174,14 @@ let doneOdd = false;
 function onPlayerOddStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
+        event.target.order = 'odd';
         //перепрыгиваем на случайную точку начала фрагмента из видео
         event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
         event.target.seekTo(event.target.vidStartTime);
 
-        //JCut монтажная склейка
-        //jCut(event.target, transition, rand.thing(['lin', 'exp']));
         event.target.unMute();
 
         // titleShow = rand.n(1,6) == 1 ? true : false;
-        
         //с задержкой в длинну фрагмента меняем видео (нечетный плеер на четный)
         // if(!titleShow) {
             // setTimeout(changeVideo, event.target.cutDuration, event.target);
@@ -204,22 +200,12 @@ let doneEven = false;
 function onPlayerEvenStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
+        event.target.order = 'even';
         //перепрыгиваем на случайную точку начала фрагмента из видео
-        event.target.startTime = rand.start(event.target.getDuration(), timer);
-        event.target.seekTo(event.target.startTime);
+        event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
+        event.target.seekTo(event.target.vidStartTime);
 
-        //JCut монтажная склейка
-        //jCut(event.target, transition, rand.thing(['lin', 'exp']));
         event.target.unMute();
-
-        // titleShow = rand.n(1,6) == 1 ? true : false;
-
-        //с задержкой в длинну фрагмента меняем видео (четный плеер на нечетный)
-        // if (!titleShow) {
-            // setTimeout(changeVideo, event.target.cutDuration, event.target);
-        // } else {
-        //     setTimeout(changeVideo, timer-transition, event.target, 'even', true);
-        // }
 
         //флаг: видео окончено
         doneEven = true;
@@ -247,7 +233,8 @@ function changeVideo(player, titleOn = false) {
         //     setTimeout(transitionStart, timer-transition*2, player);
         // }
 
-        playerHiddHandler(player);
+        frameOdd.classList.toggle('video_hidden');
+        frameEven.classList.toggle('video_hidden');
 
         player.stopVideo();
 
@@ -258,8 +245,8 @@ function changeVideo(player, titleOn = false) {
             doneEven = false;
         }
 
-        setTimeout(changeVideo, event.target.cutDuration, event.target);
-    }
+        setTimeout(changeVideo, (timer-transition)*2, player);
+    // }
 }
 
 // //начало перехода
@@ -316,12 +303,22 @@ let paused = false;
 function pause() {
     paused = true;
     if (playerOdd !== undefined) {
-        playerOdd.cutCurrentTime = Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000);
-        playerOdd.pauseVideo();
+        let vidCurrentTime = playerOdd.getCurrentTime();
+        if (vidCurrentTime <= 0){
+            playerOdd.cutCurrentTime = -1;
+        } else {
+            playerOdd.cutCurrentTime = Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000);
+            playerOdd.pauseVideo();
+        }
     }
     if (playerEven !== undefined) {
-        playerEven.cutCurrentTime = Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000);
-        playerEven.pauseVideo();
+        let vidCurrentTime = playerEven.getCurrentTime();
+        if (vidCurrentTime <= 0){
+            playerEven.cutCurrentTime = -1;
+        } else {
+            playerEven.cutCurrentTime = Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000);
+            playerEven.pauseVideo();
+        }
     }
 }
 function play() {
