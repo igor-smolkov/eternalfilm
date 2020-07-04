@@ -61,6 +61,8 @@ let start = false;
 let firstCycleOdd = false;
 let firstCycleEven = false;
 let toEvenFirst, toOddPlayNew, toOddChangeVideo, toEvenPlayNew, toEvenChangeVideo;
+let oddInit =false;
+let evenInit = false;
 screen.addEventListener('click', function(){
     if ((!controlSmall)&&(!controlSmallAnim)) {
         if (!start) {
@@ -133,9 +135,11 @@ function onYouTubeIframeAPIReady(player) {
 function playerPlayNew(player) {
     if (!paused) {
         if (player.order === 'odd') {
+            oddInit = false;
             clearTimeout(toOddPlayNew);
             toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
         } else if (player.order === 'even') {
+            evenInit = false;
             clearTimeout(toEvenPlayNew);
             toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
         }
@@ -154,21 +158,21 @@ function playerPlayNew(player) {
 function onPlayerReady(event) {
     //отключаем звук видео
     event.target.mute();
-    if (!paused) {
+    //if (!paused) {
         //для данного плеера начать воспроизведение
-        event.target.playVideo();
+        
         if(toOddPlayNew === undefined) {
+            event.target.playVideo();
             toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
             toOddChangeVideo = setTimeout(changeVideo, timer, event.target);
-            console.log('odd to');
         } else {
+            event.target.pauseVideo();
             toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
             toEvenChangeVideo = setTimeout(changeVideo, timer, event.target);
-            console.log('even to');
         }
-    } else {
-        event.target.pauseVideo();
-    }
+    // } else {
+    //     event.target.pauseVideo();
+    // }
 }
 
 function firstPlay(player) {
@@ -190,6 +194,7 @@ let doneOdd = false;
 function onPlayerOddStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
+        //if ((!pause)||(!oddInit)) {
         event.target.order = 'odd';
         //перепрыгиваем на случайную точку начала фрагмента из видео
         event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
@@ -204,9 +209,13 @@ function onPlayerOddStateChange(event) {
         // } else {
         //     setTimeout(changeVideo, timer-transition, event.target, 'odd', true);
         // }
-
         //флаг: видео окончено
         doneOdd = true;
+        oddInit = true;
+        //}
+        if (paused) {
+            pause();
+        }
     }
 }
 
@@ -216,6 +225,7 @@ let doneEven = false;
 function onPlayerEvenStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
+        //if ((!pause)||(!evenInit)) {
         event.target.order = 'even';
         //перепрыгиваем на случайную точку начала фрагмента из видео
         event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
@@ -225,6 +235,11 @@ function onPlayerEvenStateChange(event) {
 
         //флаг: видео окончено
         doneEven = true;
+        evenInit = true;
+        //}
+        if (paused) {
+            pause();
+        } 
     }
 }
 
@@ -272,7 +287,6 @@ function changeVideo(player, titleOn = false) {
             toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
         }
     }
-    console.log('pdl')
     // }
 }
 
@@ -330,28 +344,43 @@ let paused = false;
 function pause() {
     paused = true;
     if (playerOdd !== undefined) {
-        let vidCurrentTime = playerOdd.getCurrentTime();
-        if (vidCurrentTime <= 0){
-            playerOdd.cutCurrentTime = -1;
+        if (oddInit) {
+            let vidCurrentTime = playerOdd.getCurrentTime();
+            if (vidCurrentTime <= 0){
+                playerOdd.cutCurrentTime = -1;
+            } else {
+                playerOdd.cutCurrentTime = Math.round((vidCurrentTime-playerOdd.vidStartTime)*1000);
+                if (playerOdd.cutCurrentTime < 0) {
+                    playerOdd.cutCurrentTime = 0;
+                }
+                playerOdd.pauseVideo();
+            }
         } else {
-            playerOdd.cutCurrentTime = Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000);
-            playerOdd.pauseVideo();
+            playerOdd.cutCurrentTime = 0;
         }
     }
     if (playerEven !== undefined) {
-        let vidCurrentTime = playerEven.getCurrentTime();
-        if (vidCurrentTime <= 0){
-            playerEven.cutCurrentTime = -1;
+        if (evenInit) {
+            let vidCurrentTime = playerEven.getCurrentTime();
+            if (vidCurrentTime <= 0){
+                playerEven.cutCurrentTime = -1;
+            } else {
+                playerEven.cutCurrentTime = Math.round((vidCurrentTime-playerEven.vidStartTime)*1000);
+                if (playerEven.cutCurrentTime < 0) {
+                    playerEven.cutCurrentTime = 0;
+                }
+                playerEven.pauseVideo();
+            }
         } else {
-            playerEven.cutCurrentTime = Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000);
-            playerEven.pauseVideo();
+            playerEven.cutCurrentTime = 0;
         }
     }
-    clearTimeout(toEvenFirst);
+    //clearTimeout(toEvenFirst);
     clearTimeout(toOddPlayNew);
     clearTimeout(toOddChangeVideo);
     clearTimeout(toEvenPlayNew);
     clearTimeout(toEvenChangeVideo);
+    console.log('paused');
 }
 function play() {
     paused = false;
@@ -360,27 +389,41 @@ function play() {
         playerOdd.playVideo();
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerOdd.cutCurrentTime, playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, timer-playerOdd.cutCurrentTime, playerOdd);
+        console.log('odd cur:'+playerOdd.cutCurrentTime);
 
         if (playerEven === undefined) {
+            clearTimeout(toEvenFirst);
             toEvenFirst = setTimeout(onYouTubeIframeAPIReady, timer-transition-playerOdd.cutCurrentTime, 'even');
+            console.log('even undef');
         } else {
             if (playerEven.cutCurrentTime !== -1) {
-                playerEven.playVideo();
-                toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
+                if (evenInit) {
+                    playerEven.playVideo();
+                    toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
+                } else {
+                    setTimeout(playVideo, 300);
+                    toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime-300, playerEven);
+                }
                 toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
+                console.log('even cur:'+playerEven.cutCurrentTime);
             } else {
                 toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerOdd.cutCurrentTime-transition), playerEven);
                 toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerOdd.cutCurrentTime-transition), playerEven);
+                console.log('even end');
             }
         }
     } else {
         playerEven.playVideo();
         toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
         toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
+        console.log('even cur:'+playerEven.cutCurrentTime);
 
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerEven.cutCurrentTime-transition), playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerEven.cutCurrentTime-transition), playerOdd);
+        console.log('odd end');
     }
+    console.log('------------------play-end-----------');
+    console.log('doneOdd:'+doneOdd+'|--------|doneEven:'+doneEven);
 }
 
 function playVideo(player) {
@@ -516,7 +559,8 @@ backBtn.addEventListener('touchstart', function() {
     controlBack();
 });
 
-pauseBtn.addEventListener('mouseup', function() {
+let toPause, toPlay;
+pauseBtn.addEventListener('click', function() {
     if (!paused) {
         pause();
         pauseBtn.value = 'дальше'
@@ -525,6 +569,17 @@ pauseBtn.addEventListener('mouseup', function() {
         pauseBtn.value = 'пауза'
     }
 });
+
+// pauseBtn.addEventListener('dblclick', function() {
+//     pauseBtn.disabled = true;
+//     let backValue = pauseBtn.value;
+//     pauseBtn.value = 'стой';
+//     setTimeout(dis, 2000);
+//     function dis() {
+//         pauseBtn.disabled = false;
+//         pauseBtn.value = backValue;
+//     }
+// });
 
 function controlReduce(anim = false) {
     form.classList.toggle('form_none');
