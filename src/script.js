@@ -60,9 +60,6 @@ let titleShow = false;
 let start = false;
 let firstCycleOdd = false;
 let firstCycleEven = false;
-let toEvenFirst, toOddPlayNew, toOddChangeVideo, toEvenPlayNew, toEvenChangeVideo;
-let oddInit =false;
-let evenInit = false;
 screen.addEventListener('click', function(){
     if ((!controlSmall)&&(!controlSmallAnim)) {
         if (!start) {
@@ -86,8 +83,8 @@ screen.addEventListener('click', function(){
         frameOdd.classList.toggle('video_hidden');
         //создаем первый плеер
         onYouTubeIframeAPIReady('odd');
-        //с задержкой в продожительность минус переход создаем второй плеер (четный)
-        toEvenFirst = setTimeout(onYouTubeIframeAPIReady, timer-transition, 'even');
+        //создаем второй плеер (четный)
+        onYouTubeIframeAPIReady('even');
     }
 });//
 //текущая ссылка (id видео)
@@ -95,113 +92,96 @@ let currentLink;
 //нечетный и четный плеер
 let playerOdd, playerEven;
 //функция создания плеера
-function onYouTubeIframeAPIReady(player) {
+function onYouTubeIframeAPIReady(order) {
     //меняем текущую ссылку (id) на случайную из базы
     currentLink = rand.thing(base);
     //для нечетного, иначе для четного
-    if (player === 'odd') {
-        playerOdd = new YT.Player('player_odd', {
+    if (order === 'odd') {
+        playerOdd = new YT.Player(`player_${order}`, {
             videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerReady,
+                'onReady': function(){onPlayerReady(order)},
                 'onStateChange': onPlayerOddStateChange,
                 'onError': onPlayerError
             },
-            order: 'odd',
+            order: '',
             vidStartTime: 0,
-            cutCurrentTime: 0,
-            cutDuration: timer
+            cutCurrentTime: 0
         });
         frameOdd = document.querySelectorAll('.video')[0];
-    } else if (player === 'even') {
-        playerEven = new YT.Player('player_even', {
+        console.log(playerOdd);
+    } else if (order === 'even') {
+        playerEven = new YT.Player(`player_${order}`, {
             videoId: currentLink,
             playerVars: { 'autoplay': 1, 'controls': 0 },
             events: {
-                'onReady': onPlayerReady,
+                'onReady': function(){onPlayerReady(order)},
                 'onStateChange': onPlayerEvenStateChange,
                 'onError': onPlayerError
             },
-            order: 'even',
+            order: '',
             vidStartTime: 0,
-            cutCurrentTime: 0,
-            cutDuration: timer
+            cutCurrentTime: 0
         });
         frameEven = document.querySelectorAll('.video')[1];
+        console.log(playerEven);
     }
 }
 
-function playerPlayNew(player) {
-    if (!paused) {
-        if (player.order === 'odd') {
-            oddInit = false;
-            clearTimeout(toOddPlayNew);
-            toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
-        } else if (player.order === 'even') {
-            evenInit = false;
-            clearTimeout(toEvenPlayNew);
-            toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
-        }
-        //текущая ссылка (id) = случаная из базы
-        currentLink = rand.thing(base);
-        //отключаем звук видео
-        player.mute();
-        //подгрузка нового видео с ютуба по id
-        player.loadVideoById(currentLink);
-        player.playVideo();
-        //jCut(player, transition, rand.thing(['lin', 'exp']));
-    }
-}
+//таймеры на запуск нового видео и смену фреймов
+let toEvenFirstPlay, toOddPlayNew, toOddChangeVideo, toEvenPlayNew, toEvenChangeVideo;
 
 //срабатывает когда плеер готов
-function onPlayerReady(event) {
-    //отключаем звук видео
-    event.target.mute();
-    //if (!paused) {
-        //для данного плеера начать воспроизведение
-        
-        if(toOddPlayNew === undefined) {
-            event.target.playVideo();
-            toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
-            toOddChangeVideo = setTimeout(changeVideo, timer, event.target);
-        } else {
-            event.target.pauseVideo();
-            toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, event.target);
-            toEvenChangeVideo = setTimeout(changeVideo, timer, event.target);
-        }
-    // } else {
-    //     event.target.pauseVideo();
-    // }
-}
-
-function firstPlay(player) {
-    
-}
-
-//срабатывает когда возникает ошибка (например ошибка встраивания)
-function onPlayerError(event) {
-    //удаляем видео из текущей базы
-    console.log(currentLink);
-    base.splice(base.indexOf(currentLink), 1);
-    // //запускаем новое видео
-    // playerPlayNew(event.target);
+function onPlayerReady(order) {    
+    if (order === 'odd') {
+        //отключаем звук видео
+        playerOdd.mute();
+        playerOdd.playVideo();
+        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, playerOdd);
+        toOddChangeVideo = setTimeout(changeVideo, timer, playerOdd);
+        console.log('ready:'+order);
+    } else if (order === 'even') {
+        playerEven.mute();
+        playerEven.playVideo();
+        toEvenPlayNew = setTimeout(playerPlayNew, timer*2, playerEven);
+        toEvenChangeVideo = setTimeout(changeVideo, timer*2-transition, playerEven);
+        console.log('ready:'+order);
+    }
 }
 
 //флаг окончания нечетного видео
 let doneOdd = false;
+//флаг инициализации
+let oddInit = false;
+let oddReady = false;
 //срабатывает когда в нечетном плеере происходят изменения
 function onPlayerOddStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneOdd) {
-        //if ((!pause)||(!oddInit)) {
-        event.target.order = 'odd';
-        //перепрыгиваем на случайную точку начала фрагмента из видео
-        event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
-        event.target.seekTo(event.target.vidStartTime);
+        //инициализация
+        if(!oddInit) {
+            playerOdd.order = 'odd';
 
-        event.target.unMute();
+            playerOdd.vidStartTime = rand.start(playerOdd.getDuration(), timer);
+            jump(playerOdd, playerOdd.vidStartTime);
 
+            oddInit = true;
+            console.log('odd init');
+        } else {
+            //случайная точка начала фрагмента видео
+            playerOdd.vidStartTime = rand.start(playerOdd.getDuration(), timer);
+            jump(playerOdd, playerOdd.vidStartTime);
+        }
+        playerOdd.cutCurrentTime = 0;
+        //включаем звук
+        playerOdd.unMute();
+        //флаг: видео окончено
+        doneOdd = true;
+
+        oddReady = true;
+
+        console.log('state:'+playerOdd.order);
         // titleShow = rand.n(1,6) == 1 ? true : false;
         //с задержкой в длинну фрагмента меняем видео (нечетный плеер на четный)
         // if(!titleShow) {
@@ -209,38 +189,58 @@ function onPlayerOddStateChange(event) {
         // } else {
         //     setTimeout(changeVideo, timer-transition, event.target, 'odd', true);
         // }
-        //флаг: видео окончено
-        doneOdd = true;
-        oddInit = true;
+        
         //}
-        if (paused) {
-            pause();
-        }
+        // if (paused) {
+        //     pause();
+        // }
     }
 }
 
 //флаг окончания четного видео
 let doneEven = false;
+//флаг инициализации
+let evenInit = false;
+let evenReady = false;
 //срабатывает когда в четном плеере происходят изменения
 function onPlayerEvenStateChange(event) {
     //если видео играет и не окончилось
     if (event.data == YT.PlayerState.PLAYING && !doneEven) {
-        //if ((!pause)||(!evenInit)) {
-        event.target.order = 'even';
-        //перепрыгиваем на случайную точку начала фрагмента из видео
-        event.target.vidStartTime = rand.start(event.target.getDuration(), timer);
-        event.target.seekTo(event.target.vidStartTime);
+        //инициализация
+        if(!evenInit) {
+            playerEven.order = 'even';
+            playerEven.pauseVideo();
 
-        event.target.unMute();
+            playerEven.vidStartTime = rand.start(playerEven.getDuration(), timer);
+            jump(playerEven, playerEven.vidStartTime);
 
+            toEvenFirstPlay = setTimeout(playVideo, timer-transition, playerEven);  
+            evenInit = true;
+            console.log('even init');
+        } else {
+            //случайная точка начала фрагмента видео
+            playerEven.vidStartTime = rand.start(playerEven.getDuration(), timer);
+            jump(playerEven, playerEven.vidStartTime);
+        }
+        playerEven.cutCurrentTime = 0;
+        //включаем звук
+        playerEven.unMute();
         //флаг: видео окончено
         doneEven = true;
-        evenInit = true;
-        //}
-        if (paused) {
-            pause();
-        } 
+
+        evenReady = true;
+
+        console.log('state:'+playerEven.order);
     }
+}
+
+function jump(player, startTime) {
+    player.seekTo(startTime);
+}
+
+function playVideo(player) {
+    player.playVideo();
+    console.log('even play, odd cur:'+(playerOdd.getCurrentTime()-playerOdd.vidStartTime));
 }
 
 //смена видео (плееров)
@@ -264,41 +264,61 @@ function changeVideo(player, titleOn = false) {
         //     setTimeout(transitionStart, timer-transition*2, player);
         // }
 
-    if (!paused) {
-        if (!firstCycleOdd) {
-            firstCycleOdd = true;
-        } else {
-            firstCycleEven = true;
-        }
-
-        frameOdd.classList.toggle('video_hidden');
-        frameEven.classList.toggle('video_hidden');
-
-        player.stopVideo();
-
-        //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
-        if (player.order === 'odd') {
-            doneOdd = false;
-            clearTimeout(toOddChangeVideo);
-            toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
-        } else if (player.order === 'even') {
-            doneEven = false;
-            clearTimeout(toEvenChangeVideo);
-            toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
-        }
-    }
+    // if (!firstCycleOdd) {
+    //     firstCycleOdd = true;
+    // } else {
+    //     firstCycleEven = true;
     // }
+
+    frameHandler();
+
+    player.stopVideo();
+
+    //если нужно менять на нечетный плеер, значит сбрасываем нечетный флаг окночания видео, иначе сбрасываем четный
+    if (player.order === 'odd') {
+        doneOdd = false;
+        clearTimeout(toOddChangeVideo);
+        toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
+    } else if (player.order === 'even') {
+        doneEven = false;
+        clearTimeout(toEvenChangeVideo);
+        toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
+    }
 }
 
-// //начало перехода
-// function transitionStart(player) {
-// }
-// //половина перехода
-// function transition50(player) {
-// }
-// //конец перехода
-// function transitionEnd(player) {
-// }
+function frameHandler() {
+    frameOdd.classList.toggle('video_hidden');
+    frameEven.classList.toggle('video_hidden');
+}
+
+function playerPlayNew(player) {
+    if (player.order === 'odd') {
+        oddReady = false;
+        clearTimeout(toOddPlayNew);
+        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
+    } else if (player.order === 'even') {
+        evenReady = false;
+        clearTimeout(toEvenPlayNew);
+        toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, player);
+    }
+    //текущая ссылка (id) = случаная из базы
+    currentLink = rand.thing(base);
+    //отключаем звук видео
+    player.mute();
+    //подгрузка нового видео с ютуба по id
+    player.loadVideoById(currentLink);
+    player.playVideo();
+    //jCut(player, transition, rand.thing(['lin', 'exp']));
+}
+
+//срабатывает когда возникает ошибка (например ошибка встраивания)
+function onPlayerError(event) {
+    //удаляем видео из текущей базы
+    console.log(currentLink);
+    base.splice(base.indexOf(currentLink), 1);
+    // //запускаем новое видео
+    // playerPlayNew(event.target);
+}
 
 //максимальная громкость воспроизведения
 const maxVol = 100;
@@ -343,45 +363,57 @@ function jCut(player, duration, type = 'lin', shift = 0) {
 let paused = false;
 function pause() {
     paused = true;
-    if (playerOdd !== undefined) {
-        if (oddInit) {
-            let vidCurrentTime = playerOdd.getCurrentTime();
-            if (vidCurrentTime <= 0){
-                playerOdd.cutCurrentTime = -1;
-            } else {
-                playerOdd.cutCurrentTime = Math.round((vidCurrentTime-playerOdd.vidStartTime)*1000);
-                if (playerOdd.cutCurrentTime < 0) {
-                    playerOdd.cutCurrentTime = 0;
-                }
-                playerOdd.pauseVideo();
-            }
-        } else {
+
+    if (playerOdd.getCurrentTime() <= 0){
+        playerOdd.cutCurrentTime = -1;
+    } else {
+        playerOdd.cutCurrentTime = Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000);
+        if ((playerOdd.cutCurrentTime < 0)||(playerOdd.cutCurrentTime === NaN)) {
             playerOdd.cutCurrentTime = 0;
         }
+        if (playerOdd.cutCurrentTime > timer){
+            playerOdd.cutCurrentTime = -1;
+            frameHandler();
+        }
+        playerOdd.pauseVideo();
     }
-    if (playerEven !== undefined) {
-        if (evenInit) {
-            let vidCurrentTime = playerEven.getCurrentTime();
-            if (vidCurrentTime <= 0){
-                playerEven.cutCurrentTime = -1;
-            } else {
-                playerEven.cutCurrentTime = Math.round((vidCurrentTime-playerEven.vidStartTime)*1000);
-                if (playerEven.cutCurrentTime < 0) {
-                    playerEven.cutCurrentTime = 0;
-                }
-                playerEven.pauseVideo();
-            }
-        } else {
+
+    if (playerEven.getCurrentTime() <= 0){
+        playerEven.cutCurrentTime = -1;
+    } else {
+        playerEven.cutCurrentTime = Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000);
+        if ((playerEven.cutCurrentTime < 0)||(playerOdd.cutCurrentTime == NaN)) {
             playerEven.cutCurrentTime = 0;
         }
+        if (playerEven.cutCurrentTime > timer){
+            playerEven.cutCurrentTime = -1;
+            frameHandler();
+        }
+        playerEven.pauseVideo();
     }
-    //clearTimeout(toEvenFirst);
+
+    clearTimeout(toEvenFirstPlay);
     clearTimeout(toOddPlayNew);
     clearTimeout(toOddChangeVideo);
     clearTimeout(toEvenPlayNew);
     clearTimeout(toEvenChangeVideo);
-    console.log('paused');
+
+    console.log('odd CUR time:'+playerOdd.getCurrentTime());
+    console.log('even CUR time:'+playerEven.getCurrentTime());
+
+    console.log('odd DURATION:'+playerOdd.getDuration());
+    console.log('even DURATION:'+playerEven.getDuration());
+
+    console.log('odd pause:'+playerOdd.cutCurrentTime);
+    console.log('even pause:'+playerEven.cutCurrentTime);
+
+    console.log('odd pause =:'+(Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000)));
+    console.log('even pause =:'+(Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000)));
+
+    console.log('odd vid start:'+playerOdd.vidStartTime);
+    console.log('even vid start:'+playerEven.vidStartTime);
 }
+
 function play() {
     paused = false;
 
@@ -389,45 +421,43 @@ function play() {
         playerOdd.playVideo();
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerOdd.cutCurrentTime, playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, timer-playerOdd.cutCurrentTime, playerOdd);
-        console.log('odd cur:'+playerOdd.cutCurrentTime);
+        console.log('odd start:'+playerOdd.cutCurrentTime);//o1//o2//o4//o5//o6
+        console.log('o1//o2//o4//o5//o6');
 
-        if (playerEven === undefined) {
-            clearTimeout(toEvenFirst);
-            toEvenFirst = setTimeout(onYouTubeIframeAPIReady, timer-transition-playerOdd.cutCurrentTime, 'even');
-            console.log('even undef');
-        } else {
-            if (playerEven.cutCurrentTime !== -1) {
-                if (evenInit) {
-                    playerEven.playVideo();
-                    toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
-                } else {
-                    setTimeout(playVideo, 300);
-                    toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime-300, playerEven);
-                }
-                toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
-                console.log('even cur:'+playerEven.cutCurrentTime);
+        if (playerEven.cutCurrentTime !== -1) {
+            if (playerEven.cutCurrentTime == 0) {
+                toEvenFirstPlay = setTimeout(playVideo, timer-transition-playerOdd.cutCurrentTime, playerEven);
+                toEvenPlayNew = setTimeout(playerPlayNew, timer*2-playerOdd.cutCurrentTime, playerEven);
+                toEvenChangeVideo = setTimeout(changeVideo, timer*2-transition-playerOdd.cutCurrentTime, playerEven);
+                console.log('even on timer');//e1
+                console.log('e1');
             } else {
-                toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerOdd.cutCurrentTime-transition), playerEven);
-                toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerOdd.cutCurrentTime-transition), playerEven);
-                console.log('even end');
+                playerEven.playVideo();
+                toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
+                toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
+                console.log('even start:'+playerEven.cutCurrentTime);//e2//e4//e6
+                console.log('e2//e4//e6');
             }
+        } else {
+            toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerOdd.cutCurrentTime-transition), playerEven);
+            toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerOdd.cutCurrentTime-transition), playerEven);
+            console.log('even on timer');//e5
+            console.log('e5');
         }
     } else {
+        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerEven.cutCurrentTime-transition), playerOdd);
+        toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerEven.cutCurrentTime-transition), playerOdd);
+        console.log('odd on timer');//o3//o7
+        console.log('o3//o7');
+
         playerEven.playVideo();
         toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
         toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
-        console.log('even cur:'+playerEven.cutCurrentTime);
-
-        toOddPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerEven.cutCurrentTime-transition), playerOdd);
-        toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerEven.cutCurrentTime-transition), playerOdd);
-        console.log('odd end');
+        console.log('even start:'+playerEven.cutCurrentTime);//e3//e7
+        console.log('e3//e7');
     }
     console.log('------------------play-end-----------');
     console.log('doneOdd:'+doneOdd+'|--------|doneEven:'+doneEven);
-}
-
-function playVideo(player) {
-    player.playVideo();
 }
 
 //форма
@@ -559,14 +589,18 @@ backBtn.addEventListener('touchstart', function() {
     controlBack();
 });
 
-let toPause, toPlay;
+
 pauseBtn.addEventListener('click', function() {
-    if (!paused) {
-        pause();
-        pauseBtn.value = 'дальше'
-    } else {
-        play();
-        pauseBtn.value = 'пауза'
+    if (oddInit && evenInit) {
+        if (oddReady && evenReady) {
+            if (!paused) {
+                pause();
+                pauseBtn.value = 'дальше'
+            } else {
+                play();
+                pauseBtn.value = 'пауза'
+            }
+        }
     }
 });
 
