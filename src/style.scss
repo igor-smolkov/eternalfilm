@@ -155,11 +155,29 @@ input {
         align-self: center;
         display: flex;
         flex-direction: column;
-        text-align: center;
-        color: rgb(238, 220, 206);
-        input {
-            width: 115px;
-            height: 45px;
+        &__button {
+            width: 55px;
+            height: 55px;
+            margin: 5px;
+            border-radius: 50%;
+            background: center no-repeat url('static/plus.svg');
+            &:hover {
+                border-color: rgb(58, 49, 44);
+                animation: invert 0.5s;
+            }
+            &_invert {
+                filter: invert(1);
+                mix-blend-mode: color-burn;
+            }
+            &_pause {
+                background-image: url('static/pause.svg');
+            }
+            &_play {
+                background-image: url('static/play.svg');
+            }
+            &_disabled {
+                background-image: url('static/refresh.svg');
+            }
         }
         &_none {
             display: none;
@@ -280,5 +298,25 @@ input {
 @keyframes disapp {
     to { 
         opacity: 0;
+    }
+}
+
+@keyframes invert {
+    from { 
+        filter: invert(0.9);
+        mix-blend-mode: color-burn;
+    }
+    to { 
+        filter: invert(1);
+        mix-blend-mode: color-burn;
+    }
+}
+
+@keyframes wrong {
+    from { 
+        background-color: coral;
+    }
+    to { 
+        background-color: crimson;
     }
 }

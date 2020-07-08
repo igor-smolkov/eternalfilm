@@ -188,7 +188,7 @@ function onPlayerOddStateChange(event) {
         doneOdd = true;
 
         oddReady = true;
-
+        pauseBtn.classList.remove('opt__button_disabled');
         console.log('state:'+playerOdd.order);
     }
 }
@@ -233,7 +233,7 @@ function onPlayerEvenStateChange(event) {
         doneEven = true;
 
         evenReady = true;
-
+        pauseBtn.classList.remove('opt__button_disabled');
         console.log('state:'+playerEven.order);
     }
 }
@@ -280,6 +280,8 @@ function frameHandler() {
 }
 
 function playerPlayNew(player) {
+    pauseBtn.classList.add('opt__button_disabled');
+
     titleFlag = rand.n(1,6) == 1 ? true : false;
     if (titleFlag) {
         titleDiv.classList.toggle('title_none');
@@ -567,6 +569,8 @@ let controlFocusAnimEnd = false;
 let isTouch = false;
 
 control.addEventListener('animationend', function() {
+    if (!btnClickReady) {
+    console.log('ANIMATION END');
     if (!controlSmall) {
         switch (animCount) {
             case 1: {
@@ -600,6 +604,7 @@ control.addEventListener('animationend', function() {
             logo.className = 'logo';
         }
         controlFocusAnimEnd = true;
+    }
     }
 });
 
@@ -680,31 +685,42 @@ backBtn.addEventListener('touchstart', function() {
     controlBack();
 });
 
+let btnClickReady = false;
+backBtn.addEventListener('mouseover', function() {
+    btnClickReady = true;
+});
+backBtn.addEventListener('animationend', function() {
+    backBtn.classList.toggle('opt__button_invert')
+});
+backBtn.addEventListener('mouseout', function() {
+    btnClickReady = false;
+    backBtn.classList.remove('opt__button_invert')
+});
+pauseBtn.addEventListener('mouseover', function() {
+    btnClickReady = true;
+});
+pauseBtn.addEventListener('animationend', function() {
+    pauseBtn.classList.toggle('opt__button_invert')
+});
+pauseBtn.addEventListener('mouseout', function() {
+    btnClickReady = false;
+    pauseBtn.classList.remove('opt__button_invert')
+});
 
 pauseBtn.addEventListener('click', function() {
-    if (oddInit && evenInit) {
-        if (oddReady && evenReady) {
-            if (!paused) {
-                pause();
-                pauseBtn.value = 'дальше'
-            } else {
-                play();
-                pauseBtn.value = 'пауза'
-            }
+    if ((oddInit && evenInit) && (oddReady && evenReady)) {
+        if (!paused) {
+            pause();
+            pauseBtn.classList.remove('opt__button_pause');
+            pauseBtn.classList.add('opt__button_play');
+        } else {
+            play();
+            pauseBtn.classList.remove('opt__button_play');
+            pauseBtn.classList.add('opt__button_pause');
         }
     }
 });
 
-// pauseBtn.addEventListener('dblclick', function() {
-//     pauseBtn.disabled = true;
-//     let backValue = pauseBtn.value;
-//     pauseBtn.value = 'стой';
-//     setTimeout(dis, 2000);
-//     function dis() {
-//         pauseBtn.disabled = false;
-//         pauseBtn.value = backValue;
-//     }
-// });
 
 function controlReduce(anim = false) {
     form.classList.toggle('form_none');
