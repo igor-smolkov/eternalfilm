@@ -55,8 +55,8 @@ let frameOdd = screen.querySelectorAll('.video')[0];
 let frameEven = screen.querySelectorAll('.video')[1];
 let filterDiv = screen.querySelector('.filter');
 let titleDiv =  screen.querySelector('.title');
-let titleShow = false;
 //флаг начала показа
+let titleFlag = false;
 let start = false;
 screen.addEventListener('click', function(){
     if ((!controlSmall)&&(!controlSmallAnim)) {
@@ -168,13 +168,11 @@ function onPlayerOddStateChange(event) {
             playerOdd.order = 'odd';
             playerOdd.transitionEnd = true;
             playerOdd.waitTime = 0;
-            //playerOdd.transitionType = rand.thing(['cut', 'cut']);
 
             playerOdd.vidStartTime = rand.start(playerOdd.getDuration(), timer);
             jump(playerOdd, playerOdd.vidStartTime);
 
             playerOdd.setVolume(100);
-            // jCut(playerOdd, transition);
 
             oddInit = true;
             console.log('odd init');
@@ -182,9 +180,6 @@ function onPlayerOddStateChange(event) {
             //случайная точка начала фрагмента видео
             playerOdd.vidStartTime = rand.start(playerOdd.getDuration(), timer);
             jump(playerOdd, playerOdd.vidStartTime);
-
-            // playerOdd.setVolume(0);
-            // jCut(playerOdd, transition);
         }
         playerOdd.cutCurrentTime = 0;
         //включаем звук
@@ -195,18 +190,6 @@ function onPlayerOddStateChange(event) {
         oddReady = true;
 
         console.log('state:'+playerOdd.order);
-        // titleShow = rand.n(1,6) == 1 ? true : false;
-        //с задержкой в длинну фрагмента меняем видео (нечетный плеер на четный)
-        // if(!titleShow) {
-            // setTimeout(changeVideo, event.target.cutDuration, event.target);
-        // } else {
-        //     setTimeout(changeVideo, timer-transition, event.target, 'odd', true);
-        // }
-        
-        //}
-        // if (paused) {
-        //     pause();
-        // }
     }
 }
 
@@ -233,8 +216,7 @@ function onPlayerEvenStateChange(event) {
             playerEven.setVolume(0);
 
             toEvenFirstPlay = setTimeout(playVideo, timer-transition, playerEven);
-            
-            // playerEven.setVolume(0);
+
             toEvenTransition = setTimeout(jCut, timer-transition, playerEven, transition);
 
             evenInit = true;
@@ -243,9 +225,6 @@ function onPlayerEvenStateChange(event) {
             //случайная точка начала фрагмента видео
             playerEven.vidStartTime = rand.start(playerEven.getDuration(), timer);
             jump(playerEven, playerEven.vidStartTime);
-
-            // playerEven.setVolume(0);
-            // jCut(playerEven, transition);
         }
         playerEven.cutCurrentTime = 0;
         //включаем звук
@@ -274,31 +253,6 @@ function playVideo(player) {
 
 //смена видео (плееров)
 function changeVideo(player, titleOn = false) {
-    // if (!paused) {
-    //     if (titleOn) {
-    //         titleDiv.classList.toggle('title_none');
-    //         titleDiv.firstChild.innerHTML = titleStr;
-    //         getTitle(); //следующий заголовок
-    //         setTimeout(titleEnd, transition);
-    //         function titleEnd() {
-    //             titleDiv.classList.toggle('title_none');
-    //         }
-
-    //         setTimeout(playNewVideo, timer-transition, player);
-    //         setTimeout(transitionStart, timer-transition, player);
-    //     } else {
-            //с задержкой в длину фрагмента минус два перехода запускаем данный плеер снова
-            // setTimeout(playNewVideo, timer-transition*2, player); 
-        //     //новый переход начнется через время фрагмента минус два перехода
-        //     setTimeout(transitionStart, timer-transition*2, player);
-        // }
-
-    // if (!firstCycleOdd) {
-    //     firstCycleOdd = true;
-    // } else {
-    //     firstCycleEven = true;
-    // }
-
     frameHandler();
 
     player.stopVideo();
@@ -313,6 +267,11 @@ function changeVideo(player, titleOn = false) {
         clearTimeout(toEvenChangeVideo);
         toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2, player);
     }
+
+    if (titleFlag) {
+        titleFlag = false;
+        titleDiv.classList.toggle('title_none');
+    }
 }
 
 function frameHandler() {
@@ -321,6 +280,13 @@ function frameHandler() {
 }
 
 function playerPlayNew(player) {
+    titleFlag = rand.n(1,6) == 1 ? true : false;
+    if (titleFlag) {
+        titleDiv.classList.toggle('title_none');
+        titleDiv.firstChild.innerHTML = titleStr;
+        getTitle();
+    }
+
     if (player.order === 'odd') {
         oddReady = false;
         clearTimeout(toOddPlayNew);
