@@ -323,7 +323,7 @@ function onPlayerError(event) {
 }
 
 //максимальная громкость воспроизведения
-const maxVol = 100;
+let maxVol = 100;
 //JСut склейка (переход с наложением звука)
 function jCut(player, duration, shift = 0) {
     let type = player.transitionType;
@@ -453,6 +453,21 @@ function jCut(player, duration, shift = 0) {
     //setTimeout(playerHiddHandler, duration, player);
 }
 
+function refreshVol() {
+    if (maxVol < 5) {
+        maxVol = 0;
+    }
+    if (maxVol > 95) {
+        maxVol = 100;
+    }
+    if (playerOdd.transitionEnd) { 
+        playerOdd.setVolume(maxVol);
+    }
+    if (playerEven.transitionEnd) {   
+        playerEven.setVolume(maxVol);
+    }
+}
+
 let paused = false;
 function pause() {
     paused = true;
@@ -565,6 +580,8 @@ let logo = document.querySelector('.logo');
 let backBtn = document.getElementById('back');
 let filterBtn = document.getElementById('filter');
 let pauseBtn = document.getElementById('pause');
+let volSlider = document.querySelector('.vol__slider');
+let volRunner = document.querySelector('.vol__runner');
 let animCount;
 let controlSmall = false;
 let controlSmallAnim = false;
@@ -752,6 +769,46 @@ pauseBtn.addEventListener('click', function() {
     }
 });
 
+let volChanging = false;
+let volY = 0;
+let volRunnerMax = 0;
+let volRunnerMin = 0;
+volSlider.addEventListener('mousedown', function(event) {
+    volChanging = true;
+    volY = event.offsetY-15;
+    volRunnerMax = -5;
+    volRunnerMin = volRunnerMax+volSlider.offsetHeight-15;
+    let top = volY;
+    if ((top>volRunnerMax) && (top<volRunnerMin)) {  
+        volRunner.style.top = `${top}px`;
+        maxVol = 100-Math.round(((top-volRunnerMax)/(volRunnerMin-volRunnerMax))*100);
+        refreshVol();
+    }
+    console.log('MOUSEDOWN');
+});
+volSlider.addEventListener('mousemove', function(event) {
+    if (volChanging) {
+        let top = event.offsetY-15;
+        if ((top>volRunnerMax) && (top<volRunnerMin)) {
+            volRunner.style.top = `${top}px`;
+            maxVol = 100-Math.round(((top-volRunnerMax)/(volRunnerMin-volRunnerMax))*100);
+            refreshVol();
+        }
+    }
+});
+document.addEventListener('mouseup', function(event) {
+    if (volChanging) {
+        volChanging = false;
+        console.log(`volchanging: ${volRunnerMin}/${volRunnerMax}/${top}/${maxVol}`);
+        console.log('MOUSEUP');
+    }
+});
+volSlider.addEventListener('mouseover', function(event) {
+    volRunner.classList.toggle('vol__runner_hover');
+});
+volSlider.addEventListener('mouseout', function(event) {
+    volRunner.classList.toggle('vol__runner_hover');
+});
 
 function controlReduce(anim = false) {
     form.classList.toggle('form_none');

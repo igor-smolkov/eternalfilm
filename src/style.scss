@@ -199,9 +199,16 @@ body {
         height: 15px;
         //border-radius: 50%;
         background-color: rgb(119, 89, 62);
-        &:hover {
+        &_hover {
             background-color: rgb(134, 107, 82);
         }
+    }
+    &__slider {
+        position: relative;
+        top: -20px;
+        left: -12px;
+        width: 30px;
+        height: 110%;
     }
 }
 
