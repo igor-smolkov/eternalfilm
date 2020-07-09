@@ -31,7 +31,7 @@ import * as rand from '@module/rand.js'
 //модуль для парсинга добавляемых пользователями ссылок
 import * as parse from '@module/parse.js'
 //модуль для добавления видео фильтра
-import setFilter from '@module/filter.js'
+import * as filter from '@module/filter.js'
 
 import title from '@module/title.js'
 let titleStr = '';
@@ -66,7 +66,9 @@ screen.addEventListener('click', function(){
             controlReduce();
         }
     } else {
-        setFilter(filterDiv);
+        if (filterOn) {
+            filter.set(filterDiv);
+        }
     }
     //если показ не начался
     if (!start) {       
@@ -76,7 +78,8 @@ screen.addEventListener('click', function(){
         titleDiv.classList.toggle('title_none');
         titleDiv.firstChild.classList.toggle('title__text_on');
         //устанавливаем фильтр
-        setFilter(filterDiv);
+        filterOn = true;
+        filter.set(filterDiv);
         //отображаем элемент плеера (нечетный)
         frameOdd.classList.toggle('video_hidden');
         //создаем первый плеер
@@ -188,7 +191,7 @@ function onPlayerOddStateChange(event) {
         doneOdd = true;
 
         oddReady = true;
-        pauseBtn.classList.remove('opt__button_disabled');
+        pauseBtn.classList.remove('button_disabled');
         console.log('state:'+playerOdd.order);
     }
 }
@@ -233,7 +236,7 @@ function onPlayerEvenStateChange(event) {
         doneEven = true;
 
         evenReady = true;
-        pauseBtn.classList.remove('opt__button_disabled');
+        pauseBtn.classList.remove('button_disabled');
         console.log('state:'+playerEven.order);
     }
 }
@@ -280,7 +283,7 @@ function frameHandler() {
 }
 
 function playerPlayNew(player) {
-    pauseBtn.classList.add('opt__button_disabled');
+    pauseBtn.classList.add('button_disabled');
 
     titleFlag = rand.n(1,6) == 1 ? true : false;
     if (titleFlag) {
@@ -560,6 +563,7 @@ let mini = document.querySelector('.mini');
 let opt = document.querySelector('.opt');
 let logo = document.querySelector('.logo');
 let backBtn = document.getElementById('back');
+let filterBtn = document.getElementById('filter');
 let pauseBtn = document.getElementById('pause');
 let animCount;
 let controlSmall = false;
@@ -690,33 +694,60 @@ backBtn.addEventListener('mouseover', function() {
     btnClickReady = true;
 });
 backBtn.addEventListener('animationend', function() {
-    backBtn.classList.toggle('opt__button_invert')
+    backBtn.classList.toggle('button_invert')
 });
 backBtn.addEventListener('mouseout', function() {
     btnClickReady = false;
-    backBtn.classList.remove('opt__button_invert')
+    backBtn.classList.remove('button_invert')
+});
+filterBtn.addEventListener('mouseover', function() {
+    btnClickReady = true;
+});
+filterBtn.addEventListener('animationend', function() {
+    if (!filterOn){
+        filterBtn.classList.add('button_invert')
+    }
+});
+filterBtn.addEventListener('mouseout', function() {
+    btnClickReady = false;
+    if (!filterOn){
+        filterBtn.classList.remove('button_invert')
+    }
 });
 pauseBtn.addEventListener('mouseover', function() {
     btnClickReady = true;
 });
 pauseBtn.addEventListener('animationend', function() {
-    pauseBtn.classList.toggle('opt__button_invert')
+    pauseBtn.classList.toggle('button_invert')
 });
 pauseBtn.addEventListener('mouseout', function() {
     btnClickReady = false;
-    pauseBtn.classList.remove('opt__button_invert')
+    pauseBtn.classList.remove('button_invert')
+});
+
+let filterOn = false;
+filterBtn.addEventListener('click', function() {
+    if (!filterOn) {
+        filterOn = true;
+        filter.set(filterDiv);
+        filterBtn.classList.add('button_invert');
+    } else {
+        filterOn = false;
+        filter.reset(filterDiv);
+        filterBtn.classList.remove('button_invert');
+    }
 });
 
 pauseBtn.addEventListener('click', function() {
     if ((oddInit && evenInit) && (oddReady && evenReady)) {
         if (!paused) {
             pause();
-            pauseBtn.classList.remove('opt__button_pause');
-            pauseBtn.classList.add('opt__button_play');
+            pauseBtn.classList.remove('button_pause');
+            pauseBtn.classList.add('button_play');
         } else {
             play();
-            pauseBtn.classList.remove('opt__button_play');
-            pauseBtn.classList.add('opt__button_pause');
+            pauseBtn.classList.remove('button_play');
+            pauseBtn.classList.add('button_pause');
         }
     }
 });

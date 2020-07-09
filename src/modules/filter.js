@@ -1,11 +1,18 @@
 //модуль с функциями рандома для разных задач
 import * as rand from '@module/rand.js'
 //видеофильтр
-export default function(filterDiv) {
+function set(filterDiv) {
     const filter = getFilter(rand.thing(['dark','light']),rand.thing(['cold','warm','grey','grey','none']),rand.thing([true, false]));
     filterDiv.style.backgroundImage = filter.gradient;
     filterDiv.style.mixBlendMode = filter.mode;
 }
+
+function reset(filterDiv) {
+    filterDiv.style.backgroundImage = 'none';
+    filterDiv.style.mixBlendMode = 'normal';
+}
+
+export {set, reset};
 
 function getFilter(mood, sense, border = false) {
     let gradient;

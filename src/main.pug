@@ -14,10 +14,15 @@ block content
         .filter
       .control
         form.form
-          input#link(type="text", value="скопируйте ссылку на ваше видео сюда" autocomplete="off")
-          input#add(type="button", value="добавить ссылку")
+          input.field.field_form#link(type="text", value="скопируйте ссылку на ваше видео сюда" autocomplete="off")
+          input.button.button_form#add(type="button", value="добавить ссылку")
         .mini.mini_none
           .opt.opt_none
-            input.opt__button.opt__button_back#back(type="button")
-            input.opt__button.opt__button_pause#pause(type="button")
+            .opt__btn-panel
+              input.button.button_mini.button_back#back(type="button")
+              input.button.button_mini.button_filter.button_invert#filter(type="button")
+              input.button.button_mini.button_pause#pause(type="button")
+            .opt__vol-panel
+              .vol
+                .vol__runner
           .logo.logo_none ef
