@@ -114,7 +114,6 @@ function onYouTubeIframeAPIReady(order) {
             waitTime: 0
         });
         frameOdd = document.querySelectorAll('.video')[0];
-        console.log(playerOdd);
     } else if (order === 'even') {
         playerEven = new YT.Player(`player_${order}`, {
             videoId: currentLink,
@@ -132,7 +131,6 @@ function onYouTubeIframeAPIReady(order) {
             waitTime: 0
         });
         frameEven = document.querySelectorAll('.video')[1];
-        console.log(playerEven);
     }
 }
 
@@ -147,13 +145,11 @@ function onPlayerReady(order) {
         playerOdd.playVideo();
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2, playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, timer, playerOdd);
-        console.log('ready:'+order);
     } else if (order === 'even') {
         playerEven.mute();
         playerEven.playVideo();
         toEvenPlayNew = setTimeout(playerPlayNew, timer*2, playerEven);
         toEvenChangeVideo = setTimeout(changeVideo, timer*2-transition, playerEven);
-        console.log('ready:'+order);
     }
 }
 
@@ -178,7 +174,6 @@ function onPlayerOddStateChange(event) {
             playerOdd.setVolume(100);
 
             oddInit = true;
-            console.log('odd init');
         } else {
             //случайная точка начала фрагмента видео
             playerOdd.vidStartTime = rand.start(playerOdd.getDuration(), timer);
@@ -192,7 +187,6 @@ function onPlayerOddStateChange(event) {
 
         oddReady = true;
         pauseBtn.classList.remove('button_disabled');
-        console.log('state:'+playerOdd.order);
     }
 }
 
@@ -223,7 +217,6 @@ function onPlayerEvenStateChange(event) {
             toEvenTransition = setTimeout(jCut, timer-transition, playerEven, transition);
 
             evenInit = true;
-            console.log('even init');
         } else {
             //случайная точка начала фрагмента видео
             playerEven.vidStartTime = rand.start(playerEven.getDuration(), timer);
@@ -237,7 +230,6 @@ function onPlayerEvenStateChange(event) {
 
         evenReady = true;
         pauseBtn.classList.remove('button_disabled');
-        console.log('state:'+playerEven.order);
     }
 }
 
@@ -249,9 +241,7 @@ function playVideo(player) {
     player.playVideo();
     if (!player.transitionEnd) {
         jCut(player, transition, player.cutCurrentTime + player.waitTime);
-        console.log('transition not end, cur time:'+player.cutCurrentTime)
     }
-    console.log('even play, odd cur:'+(playerOdd.getCurrentTime()-playerOdd.vidStartTime));
 }
 
 //смена видео (плееров)
@@ -331,7 +321,6 @@ function jCut(player, duration, shift = 0) {
     let minVol = 0;
     if (player.getVolume() != undefined){
         minVol = player.getVolume();
-        console.log('VOLUME:'+minVol);
     }
 
     let shiftWait = shift;
@@ -356,8 +345,6 @@ function jCut(player, duration, shift = 0) {
                     player.mute();
                     toTransition = setTimeout(cut, transition-shiftWait);
                 }
-                console.log('TYPE:'+type);
-                console.log('shift:'+shiftWait);
             } else {
                 cut();
             }
@@ -365,14 +352,11 @@ function jCut(player, duration, shift = 0) {
     }
     check(player.order);
 
-    console.log('TYPE:'+type);
-
     let i = minVol;
 
     function lin() {
         setTimeout(function () {
             player.setVolume(i);
-            console.log('vol:'+i);
             i++;
             if (i < maxVol) {
                 if (!paused) {
@@ -388,7 +372,6 @@ function jCut(player, duration, shift = 0) {
     function exp() {
         setTimeout(function () {
             player.setVolume(i);
-            console.log('vol:'+i);
             i = Math.round(Math.exp(step/1075));
             step += 100;
             if (i < maxVol) {
@@ -406,51 +389,6 @@ function jCut(player, duration, shift = 0) {
         player.setVolume(maxVol);
         player.transitionEnd = true;
     }
-
-    console.log((duration-shift)/(maxVol-minVol));
-    console.log(duration);
-    console.log(shift);
-    console.log(maxVol);
-    console.log(minVol);
-
-    console.log(`${minVol} / ${maxVol}`);
-
-    console.log(`${minVol} / ${maxVol}`);
-
-    // //шаг задержки = длинна перехода / максимальную громкость
-    // const step = duration/maxVol;
-    // //устанавливаем громкость на минимум
-    // player.setVolume(0);
-    // //включаем звук видео
-    // player.unMute();
-    // //типы нарастания громкости: линейная, экспоненциальная, резкое включение
-    // if(type === 'lin'){
-    //     let i = 0;
-    //     //начало нарастания после сдвига shift
-    //     setTimeout(up, shift);
-    //     function up() {
-    //         //громкость видео равна счетчику
-    //         player.setVolume(Math.round(i));
-    //         //пока i меньше или равно максимальной громкости увеличиваем с шагом / 100
-    //         if (i <= maxVol) {
-    //             i += step/100;
-    //             setTimeout(up, 24);
-    //         }
-    //     }
-    // } //else if(type === 'exp'){
-    //     let i = 0;
-    //     setTimeout(up, shift);
-    //     function up() {
-    //         //громкость видео равна экспоненте i
-    //         player.setVolume(Math.round(Math.exp(i)));
-    //         if (Math.exp(i) <= maxVol) {
-    //             i += step/(100/0.05);
-    //             setTimeout(up, 24);
-    //         }
-    //     }
-    // }
-    //переход закончится за время перехода
-    //setTimeout(playerHiddHandler, duration, player);
 }
 
 function refreshVol() {
@@ -507,21 +445,6 @@ function pause() {
     clearTimeout(toEvenChangeVideo);
     clearTimeout(toTransition);
     clearTimeout(toEvenTransition);
-
-    console.log('odd CUR time:'+playerOdd.getCurrentTime());
-    console.log('even CUR time:'+playerEven.getCurrentTime());
-
-    console.log('odd DURATION:'+playerOdd.getDuration());
-    console.log('even DURATION:'+playerEven.getDuration());
-
-    console.log('odd pause:'+playerOdd.cutCurrentTime);
-    console.log('even pause:'+playerEven.cutCurrentTime);
-
-    console.log('odd pause =:'+(Math.round((playerOdd.getCurrentTime()-playerOdd.vidStartTime)*1000)));
-    console.log('even pause =:'+(Math.round((playerEven.getCurrentTime()-playerEven.vidStartTime)*1000)));
-
-    console.log('odd vid start:'+playerOdd.vidStartTime);
-    console.log('even vid start:'+playerEven.vidStartTime);
 }
 
 function play() {
@@ -531,8 +454,6 @@ function play() {
         playVideo(playerOdd);
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerOdd.cutCurrentTime, playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, timer-playerOdd.cutCurrentTime, playerOdd);
-        console.log('odd start:'+playerOdd.cutCurrentTime);//o1//o2//o4//o5//o6
-        console.log('o1//o2//o4//o5//o6');
 
         if (playerEven.cutCurrentTime !== -1) {
             if (playerEven.cutCurrentTime == 0) {
@@ -540,35 +461,23 @@ function play() {
                 toEvenTransition = setTimeout(jCut, timer-transition-playerOdd.cutCurrentTime, playerEven, transition);
                 toEvenPlayNew = setTimeout(playerPlayNew, timer*2-playerOdd.cutCurrentTime, playerEven);
                 toEvenChangeVideo = setTimeout(changeVideo, timer*2-transition-playerOdd.cutCurrentTime, playerEven);
-                console.log('even on timer');//e1
-                console.log('e1');
             } else {
                 playVideo(playerEven);
                 toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
                 toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
-                console.log('even start:'+playerEven.cutCurrentTime);//e2//e4//e6
-                console.log('e2//e4//e6');
             }
         } else {
             toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerOdd.cutCurrentTime-transition), playerEven);
             toEvenChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerOdd.cutCurrentTime-transition), playerEven);
-            console.log('even on timer');//e5
-            console.log('e5');
         }
     } else {
         toOddPlayNew = setTimeout(playerPlayNew, (timer-transition*2)-(playerEven.cutCurrentTime-transition), playerOdd);
         toOddChangeVideo = setTimeout(changeVideo, (timer-transition)*2-(playerEven.cutCurrentTime-transition), playerOdd);
-        console.log('odd on timer');//o3//o7
-        console.log('o3//o7');
 
         playVideo(playerEven);
         toEvenPlayNew = setTimeout(playerPlayNew, (timer-transition)*2-playerEven.cutCurrentTime, playerEven);
         toEvenChangeVideo = setTimeout(changeVideo, timer-playerEven.cutCurrentTime, playerEven);
-        console.log('even start:'+playerEven.cutCurrentTime);//e3//e7
-        console.log('e3//e7');
     }
-    console.log('------------------play-end-----------');
-    console.log('doneOdd:'+doneOdd+'|--------|doneEven:'+doneEven);
 }
 
 //форма
@@ -591,7 +500,6 @@ let isTouch = false;
 
 control.addEventListener('animationend', function() {
     if (!btnClickReady) {
-    console.log('ANIMATION END');
     if (!controlSmall) {
         switch (animCount) {
             case 1: {
@@ -784,7 +692,6 @@ volSlider.addEventListener('mousedown', function(event) {
         maxVol = 100-Math.round(((top-volRunnerMax)/(volRunnerMin-volRunnerMax))*100);
         refreshVol();
     }
-    console.log('MOUSEDOWN');
 });
 volSlider.addEventListener('mousemove', function(event) {
     if (volChanging) {
@@ -799,8 +706,6 @@ volSlider.addEventListener('mousemove', function(event) {
 document.addEventListener('mouseup', function(event) {
     if (volChanging) {
         volChanging = false;
-        console.log(`volchanging: ${volRunnerMin}/${volRunnerMax}/${top}/${maxVol}`);
-        console.log('MOUSEUP');
     }
 });
 volSlider.addEventListener('mouseover', function(event) {
