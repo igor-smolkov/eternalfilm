@@ -3,6 +3,7 @@
 body {
     font-size: 20px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    overflow: hidden;
 }
 
 .cinema{
@@ -64,6 +65,9 @@ body {
     }
 }
 
+$control-small-width: 150px;
+$control-small-height: 150px;
+
 .control {
     position: absolute;
     top: 0;
@@ -74,16 +78,16 @@ body {
     &_small {
         top: 50px;
         right: 50px;
-        width: 150px;
-        height: 150px;
+        width: $control-small-width;
+        height: $control-small-height;
         border-radius: 50%;
         opacity: 0.3;
     }
     &_small_square {
         top: 50px;
         right: 50px;
-        width: 150px;
-        height: 150px;
+        width: $control-small-width;
+        height: $control-small-height;
         border-radius: 0;
         opacity: 1;
     }
@@ -93,8 +97,8 @@ body {
     &_anim_rotate {
         top: 50px;
         right: 50px;
-        width: 150px;
-        height: 150px;
+        width: $control-small-width;
+        height: $control-small-height;
         border-radius: 0;
         opacity: 1;
         animation: sign_rotate 1s ease-in;
@@ -132,6 +136,20 @@ body {
     }
 }
 
+$button-mini-width: 44px;
+$button-mini-height: 44px;
+$opt-height: 135px;
+$opt-vol-panel-margin-left: 20px;
+$vol-width: 35px;
+$vol-height: 135px;
+$vol-border: 15px;
+$vol-runner-left: -5px;
+$vol-runner-width: 15px;
+$vol-runner-height: 15px;
+$vol-slider-top: -20px;
+$vol-slider-left: -12px;
+$vol-slider-width: 30px;
+
 .button {
     color: rgb(238, 220, 206);
     background-color: rgb(70, 52, 37);
@@ -154,8 +172,8 @@ body {
         }
     }
     &_mini {
-        width: 44px;
-        height: 44px;
+        width: $button-mini-width;
+        height: $button-mini-height;
         padding: 0;
         display: block;
         margin: 1px;
@@ -165,6 +183,13 @@ body {
         &:hover {
             border-color: rgb(58, 49, 44);
             animation: invert 0.5s;
+        }
+        // &_anim {
+        //     border-color: rgb(58, 49, 44);
+        //     animation: invert 0.5s;
+        // }
+        &_anim_none:hover {
+            animation: none;
         }
     }
     &_invert {
@@ -186,17 +211,18 @@ body {
 }
 
 .vol {
-    width: 35px;
-    height: 135px;
+    width: $vol-width;
+    height: $vol-height;
     background-color: rgb(0, 0, 0);
-    border: 15px solid rgb(95, 63, 39);
+    border: solid rgb(95, 63, 39);
+    border-width: $vol-border;
     border-radius: 15px;
     &__runner {
         position: relative;
         top: 0px;
-        left: -5px;
-        width: 15px;
-        height: 15px;
+        left: $vol-runner-left;
+        width: $vol-runner-width;
+        height: $vol-runner-height;
         //border-radius: 50%;
         background-color: rgb(119, 89, 62);
         &_hover {
@@ -205,9 +231,9 @@ body {
     }
     &__slider {
         position: relative;
-        top: -20px;
-        left: -12px;
-        width: 30px;
+        top: $vol-slider-top;
+        left: $vol-slider-left;
+        width: $vol-slider-width;
         height: 110%;
     }
 }
@@ -220,7 +246,7 @@ body {
     user-select: none;
     .opt {
         width: 65%;
-        height: 135px;
+        height: $opt-height;
         align-self: center;
         display: flex;
         //justify-content: start;
@@ -230,7 +256,7 @@ body {
             flex-direction: column;
         }
         &__vol-panel {
-            margin-left: 20px;
+            margin-left: $opt-vol-panel-margin-left;
             align-self: center;
         }
         &_none {
@@ -251,6 +277,8 @@ body {
     }
 }
 
+$d: 1.5;
+
 @media only screen and (max-width : 1000px) {
     .video {
         transform: scale(1.63);
@@ -270,8 +298,8 @@ body {
         &_anim_rotate {
             top: 10px;
             right: 10px;
-            width: 75px;
-            height: 75px;
+            width: calc(#{$control-small-width} / #{$d});
+            height: calc(#{$control-small-height} / #{$d});
         }
         &_anim_square {
             animation: sign_square_phone 1s;
@@ -283,13 +311,35 @@ body {
     .button {
         padding: 5px 6px;
         border-width: 2px;
+        &_mini {
+            padding: 0;
+            border-width: 1px;
+            width: calc(#{$button-mini-width} / #{$d});
+            height: calc(#{$button-mini-height} / #{$d});
+        }
+    }
+    .vol {
+        width: calc(#{$vol-width} / #{$d});
+        height: calc(#{$vol-height} / #{$d});
+        border-width: calc(#{$vol-border} / #{$d});
+        &__runner {
+            width: calc(#{$vol-runner-width} / #{$d});
+            height: calc(#{$vol-runner-height} / #{$d});
+            left: calc(#{$vol-runner-left} / #{$d});
+        }
+        &__slider {
+            top: calc(#{$vol-slider-top} / #{$d});
+            left: calc(#{$vol-slider-left} / #{$d});
+            width: calc(#{$vol-slider-width} / #{$d});
+            height: 110%;
+            //background-color: red;
+        }
     }
     .mini {
         .opt {
-            font-size: 10px;
-            input {
-                width: 60px;
-                height: 30px;
+            height: calc(#{$opt-height} / #{$d});
+            &__vol-panel {
+                margin-left: calc(#{$opt-vol-panel-margin-left} / #{$d});
             }
         }
         .logo {
@@ -297,7 +347,7 @@ body {
         }
     }
 }
-@media only screen and (max-width : 500px) {
+@media only screen and (max-width : 800px) {
     .video {
         transform: scale(3.9);
     }
@@ -307,28 +357,31 @@ body {
         line-height: 50px;
     }
     .control {
-        height: 75px;
+        height: calc(#{$control-small-height} / #{$d});
     }
     .form {
         flex-direction: column;
     }
     .button {
         width: 100%;
+        &_mini {
+            width: calc(#{$button-mini-width} / #{$d});
+        }
     }
 }
 
 @keyframes sign_square {
     to { 
-        height: 150px;
-        width: 150px;
+        height: $control-small-height;
+        width: $control-small-width;
         top: 50px;
         right: 50px;
     }
 }
 @keyframes sign_square_phone {
     to { 
-        height: 75px;
-        width: 75px;
+        height: calc(#{$control-small-height} / #{$d});
+        width: calc(#{$control-small-width} / #{$d});
         top: 10px;
         right: 10px;
     }

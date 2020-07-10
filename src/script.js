@@ -549,15 +549,24 @@ control.addEventListener('mouseout', function() {
     }
 });
 
-let touchFlag = false;
 control.addEventListener('touchstart', function() {
     isTouch = true;
+    filterBtn.classList.add('button_mini_anim_none');
+    pauseBtn.classList.add('button_mini_anim_none');
+    // if (!touchFlag) {
+    //     touchFlag = true;
+    //     becomeOpt();
+    // } else {
+    //     touchFlag = false;
+    //     becomeLogo();
+    // }
+});
+
+let touchFlag = false;
+control.addEventListener('touchend', function() {
     if (!touchFlag) {
         touchFlag = true;
         becomeOpt();
-    } else {
-        touchFlag = false;
-        becomeLogo();
     }
 });
 
@@ -626,32 +635,49 @@ backBtn.addEventListener('mouseout', function() {
     backBtn.classList.remove('button_invert')
 });
 filterBtn.addEventListener('mouseover', function() {
-    btnClickReady = true;
+    if (!isTouch) {
+        btnClickReady = true;
+    }
 });
 filterBtn.addEventListener('animationend', function() {
-    if (!filterOn){
+    if ((!filterOn)&&(!isTouch)) {
         filterBtn.classList.add('button_invert')
     }
 });
 filterBtn.addEventListener('mouseout', function() {
     btnClickReady = false;
-    if (!filterOn){
+    if ((!filterOn)&&(!isTouch)){
         filterBtn.classList.remove('button_invert')
     }
 });
 pauseBtn.addEventListener('mouseover', function() {
-    btnClickReady = true;
+    if (!isTouch) {
+        btnClickReady = true;
+    }
 });
 pauseBtn.addEventListener('animationend', function() {
     pauseBtn.classList.toggle('button_invert')
 });
 pauseBtn.addEventListener('mouseout', function() {
-    btnClickReady = false;
-    pauseBtn.classList.remove('button_invert')
+    if (!isTouch) {
+        btnClickReady = false;
+        pauseBtn.classList.remove('button_invert')
+    }
 });
 
 let filterOn = false;
-filterBtn.addEventListener('click', function() {
+filterBtn.addEventListener('mouseup', function() {
+    if (!isTouch) {  
+        filterBtnHandler();
+    }
+});
+
+filterBtn.addEventListener('touchstart', function() {
+    isTouch = true;
+    filterBtnHandler();
+});
+
+function filterBtnHandler() {
     if (!filterOn) {
         filterOn = true;
         filter.set(filterDiv);
@@ -661,7 +687,7 @@ filterBtn.addEventListener('click', function() {
         filter.reset(filterDiv);
         filterBtn.classList.remove('button_invert');
     }
-});
+}
 
 pauseBtn.addEventListener('click', function() {
     if ((oddInit && evenInit) && (oddReady && evenReady)) {
@@ -681,38 +707,69 @@ let volChanging = false;
 let volY = 0;
 let volRunnerMax = 0;
 let volRunnerMin = 0;
+let d = 1;
 volSlider.addEventListener('mousedown', function(event) {
+    if (!isTouch) {
+        volSliderStartHandler(event.offsetY);
+    }
+});
+volSlider.addEventListener('touchstart', function(event) {
+    isTouch = true;
+    volSliderStartHandler(event.touches[0].clientY-20);
+    volRunner.classList.add('vol__runner_hover');
+});
+function volSliderStartHandler (y) {
     volChanging = true;
-    volY = event.offsetY-15;
-    volRunnerMax = -5;
-    volRunnerMin = volRunnerMax+volSlider.offsetHeight-15;
+    if (volSlider.offsetHeight < 120) {
+        d = 1.5;
+    }
+    volY = y-15/d;
+    volRunnerMax = -5/d;
+    volRunnerMin = volRunnerMax+volSlider.offsetHeight-15/d;
     let top = volY;
     if ((top>volRunnerMax) && (top<volRunnerMin)) {  
         volRunner.style.top = `${top}px`;
         maxVol = 100-Math.round(((top-volRunnerMax)/(volRunnerMin-volRunnerMax))*100);
         refreshVol();
     }
-});
+}
+
 volSlider.addEventListener('mousemove', function(event) {
+    if (!isTouch) {
+        volSliderMoveHandler(event.offsetY);
+    }
+});
+volSlider.addEventListener('touchmove', function(event) {
+    isTouch = true;
+    volSliderMoveHandler(event.touches[0].clientY-20);
+});
+function volSliderMoveHandler (y) {
     if (volChanging) {
-        let top = event.offsetY-15;
+        let top = y-15/d;
         if ((top>volRunnerMax) && (top<volRunnerMin)) {
             volRunner.style.top = `${top}px`;
             maxVol = 100-Math.round(((top-volRunnerMax)/(volRunnerMin-volRunnerMax))*100);
             refreshVol();
         }
     }
-});
+}
+
 document.addEventListener('mouseup', function(event) {
     if (volChanging) {
         volChanging = false;
     }
 });
+document.addEventListener('touchend', function(event) {
+    if (volChanging) {
+        volChanging = false;
+    }
+    volRunner.classList.remove('vol__runner_hover');
+});
 volSlider.addEventListener('mouseover', function(event) {
-    volRunner.classList.toggle('vol__runner_hover');
+    volRunner.classList.add('vol__runner_hover');
 });
 volSlider.addEventListener('mouseout', function(event) {
-    volRunner.classList.toggle('vol__runner_hover');
+    volRunner.classList.remove('vol__runner_hover');
 });
 
 function controlReduce(anim = false) {
