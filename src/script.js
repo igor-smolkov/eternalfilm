@@ -619,7 +619,7 @@ function becomeLogo() {
 backBtn.addEventListener('mouseup', function() {
     controlBack();
 });
-backBtn.addEventListener('touchstart', function() {
+backBtn.addEventListener('touchend', function() {
     controlBack();
 });
 
@@ -755,15 +755,19 @@ function volSliderMoveHandler (y) {
 }
 
 document.addEventListener('mouseup', function(event) {
-    if (volChanging) {
-        volChanging = false;
+    if (controlSmall && !controlSmallAnim) {
+        if (volChanging) {
+            volChanging = false;
+        }
     }
 });
 document.addEventListener('touchend', function(event) {
-    if (volChanging) {
-        volChanging = false;
+    if (controlSmall && !controlSmallAnim) {
+        if (volChanging) {
+            volChanging = false;
+        }
+        volRunner.classList.remove('vol__runner_hover');
     }
-    volRunner.classList.remove('vol__runner_hover');
 });
 volSlider.addEventListener('mouseover', function(event) {
     volRunner.classList.add('vol__runner_hover');
